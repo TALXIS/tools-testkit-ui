@@ -1,0 +1,13 @@
+# Node modules
+node_modules/
+
+# Build output
+/dist/
+/tests/
+
+# Test output
+test_results/
+
+# IDE settings
+/.vscode/
+

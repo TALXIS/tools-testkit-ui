@@ -1,0 +1,94 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyTitle>TALXIS.TestKit.Bindings</AssemblyTitle>
+    <Product>TALXIS.TestKit.Bindings</Product>
+    <Description>A Reqnroll bindings library for Power Apps.</Description>
+    <Version>1.0.0</Version>
+    <PackageIcon>icon.png</PackageIcon>
+    <Authors>NETWORG</Authors>
+    <Company>NETWORG</Company>
+    <PackageId>TALXIS.TestKit.Bindings</PackageId>
+    <PackageTags>powerapps reqnroll bindings automated-testing testing</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <DebugType>portable</DebugType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' != 'Release'">
+    <UserSecretsId>$(ProjectName)</UserSecretsId>
+    <IncludeSource>True</IncludeSource>
+    <IncludeSymbols>True</IncludeSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <UserSecretsId>e01f5ecc-e0e0-4786-bde6-88d2bc04554e</UserSecretsId>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>TALXIS TestKit Bindings</Title>
+  </PropertyGroup>
+
+  <Target Name="CopyDriver" AfterTargets="Build">
+    <Exec Command="npm run build" WorkingDirectory="../../../driver" />
+    <Copy SourceFiles="../../../driver/dist/driver.js" DestinationFolder="bin/lib" />
+  </Target>
+
+	<ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Microsoft.Build.Tasks.Git" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.29" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.24.0" />
+    <PackageReference Include="Microsoft.SourceLink.Common" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Polly" Version="7.2.2" />
+    <PackageReference Include="Reqnroll" Version="2.2.1" />
+    <PackageReference Include="Selenium.Support" Version="4.0.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.0.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="TALXIS.TestKit.Selectors" Version="1.0.0" />
+    <PackageReference Include="TALXIS.TestKit.Selectors.Browser" Version="1.0.0" />
+    <PackageReference Include="WebDriverManager" Version="2.17.5" />
+    <PackageReference Include="YamlDotNet" Version="9.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Targets\**">
+      <Pack>true</Pack>
+      <PackagePath>build</PackagePath>
+    </Content>
+    <Content Include="bin\lib\driver.js">
+      <Pack>true</Pack>
+      <PackagePath>build</PackagePath>
+    </Content>
+    <Content Include="Content\**">
+      <Pack>true</Pack>
+      <PackagePath>content</PackagePath>
+    </Content>
+    <None Include="icon.png" Pack="true" PackagePath="\" />
+    <!-- Including driver files so that they are picked up by SonarCloud analysis (see https://sonarcloud.io/documentation/analysis/scan/sonarscanner-for-msbuild)  -->
+    <None Include="..\..\..\driver\**\*.ts" Exclude="..\..\..\driver\node_modules\**\*" Visible="false" />
+  </ItemGroup>
+</Project>

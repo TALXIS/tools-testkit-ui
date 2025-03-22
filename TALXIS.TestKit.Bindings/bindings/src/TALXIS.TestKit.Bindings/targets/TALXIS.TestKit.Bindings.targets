@@ -1,0 +1,17 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)driver.js">
+      <Link>driver.js</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </None>
+  </ItemGroup>
+
+  <UsingTask TaskName="TALXIS.TestKit.Bindings.MSBuild.ExtendDataFiles" AssemblyFile="$(MSBuildThisFileDirectory)/TALXIS.TestKit.Bindings.MSBuild/TALXIS.TestKit.Bindings.MSBuild.dll" />
+  <Target Name="CompileDataFiles" AfterTargets="Build">
+    <ItemGroup>
+      <DataFiles Include="Data\**\*.json" Visible="true" />
+    </ItemGroup>
+    <ExtendDataFiles Include="@(DataFiles)" DestinationFolder="$(OutputPath)Data" />
+  </Target>
+</Project>

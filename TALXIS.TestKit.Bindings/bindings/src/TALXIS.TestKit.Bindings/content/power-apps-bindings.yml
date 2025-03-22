@@ -1,0 +1,8 @@
+url: 
+useProfiles: false
+browserOptions: 
+  browserType:
+users: 
+  - username:
+    password:
+    alias:

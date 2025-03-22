@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TALXIS.TestKit.Bindings", "TALXIS.TestKit.Bindings\bindings\src\TALXIS.TestKit.Bindings\TALXIS.TestKit.Bindings.csproj", "{384B5544-2317-E82B-F9C8-9B6900056991}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TALXIS.TestKit.Bindings.MSBuild", "TALXIS.TestKit.Bindings\bindings\src\TALXIS.TestKit.Bindings.MSBuild\TALXIS.TestKit.Bindings.MSBuild.csproj", "{93E8A48C-96C5-2B29-DDFA-CDAA9CD5FE14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TALXIS.TestKit.Selectors", "TALXIS.TestKit.Selectors\TALXIS.TestKit.Selectors\TALXIS.TestKit.Selectors.csproj", "{88209D48-D407-C2E4-1E5E-937109F54C8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TALXIS.TestKit.Selectors.Browser", "TALXIS.TestKit.Selectors\TALXIS.TestKit.Selectors.Api.Browser\TALXIS.TestKit.Selectors.Browser.csproj", "{A4CC4871-796C-782B-F29D-91D6D0355EAD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{384B5544-2317-E82B-F9C8-9B6900056991}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{384B5544-2317-E82B-F9C8-9B6900056991}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{384B5544-2317-E82B-F9C8-9B6900056991}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{384B5544-2317-E82B-F9C8-9B6900056991}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93E8A48C-96C5-2B29-DDFA-CDAA9CD5FE14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93E8A48C-96C5-2B29-DDFA-CDAA9CD5FE14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93E8A48C-96C5-2B29-DDFA-CDAA9CD5FE14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93E8A48C-96C5-2B29-DDFA-CDAA9CD5FE14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88209D48-D407-C2E4-1E5E-937109F54C8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88209D48-D407-C2E4-1E5E-937109F54C8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88209D48-D407-C2E4-1E5E-937109F54C8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88209D48-D407-C2E4-1E5E-937109F54C8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4CC4871-796C-782B-F29D-91D6D0355EAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4CC4871-796C-782B-F29D-91D6D0355EAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4CC4871-796C-782B-F29D-91D6D0355EAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4CC4871-796C-782B-F29D-91D6D0355EAD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {73CAB119-FF9D-44A3-8A02-853B4CFCDA67}
+	EndGlobalSection
+EndGlobal
