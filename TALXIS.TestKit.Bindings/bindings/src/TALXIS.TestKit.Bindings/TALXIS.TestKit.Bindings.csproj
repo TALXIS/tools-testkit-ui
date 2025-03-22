@@ -14,6 +14,7 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <DebugType>portable</DebugType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <UserSecretsId>e01f5ecc-e0e0-4786-bde6-88d2bc04554e</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' != 'Release'">
@@ -27,7 +28,6 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <UserSecretsId>e01f5ecc-e0e0-4786-bde6-88d2bc04554e</UserSecretsId>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>TALXIS TestKit Bindings</Title>
   </PropertyGroup>
@@ -37,7 +37,14 @@
     <Copy SourceFiles="../../../driver/dist/driver.js" DestinationFolder="bin/lib" />
   </Target>
 
-	<ItemGroup>
+  <Target Name="CopyTargets" AfterTargets="Build">
+    <ItemGroup>
+      <BindingsTargetsFiles Include="../TALXIS.TestKit.Bindings.MSBuild/bin/Release/netstandard2.0/*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(BindingsTargetsFiles)" DestinationFolder="bin/lib/TALXIS.TestKit.Bindings.MSBuild" />
+  </Target>
+
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.Build.Tasks.Git" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -83,12 +90,15 @@
       <Pack>true</Pack>
       <PackagePath>build</PackagePath>
     </Content>
+    <Content Include="bin\lib\TALXIS.TestKit.Bindings.MSBuild\**">
+      <Pack>true</Pack>
+      <PackagePath>build\TALXIS.TestKit.Bindings.MSBuild</PackagePath>
+    </Content>
     <Content Include="Content\**">
       <Pack>true</Pack>
       <PackagePath>content</PackagePath>
     </Content>
     <None Include="icon.png" Pack="true" PackagePath="\" />
-    <!-- Including driver files so that they are picked up by SonarCloud analysis (see https://sonarcloud.io/documentation/analysis/scan/sonarscanner-for-msbuild)  -->
     <None Include="..\..\..\driver\**\*.ts" Exclude="..\..\..\driver\node_modules\**\*" Visible="false" />
   </ItemGroup>
 </Project>

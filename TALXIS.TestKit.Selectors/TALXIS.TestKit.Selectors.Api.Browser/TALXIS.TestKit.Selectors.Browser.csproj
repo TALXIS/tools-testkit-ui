@@ -3,7 +3,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <LangVersion>13</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile />

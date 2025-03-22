@@ -37,10 +37,11 @@
     </dependencies>
   </metadata>
   <files>
+    <!-- this likely doesn't work because the nuget spec is duplicated here and in the csproj -->
     <file src="icon.png" target=""/>
     <file src="bin\Release\net8.0\TALXIS.TestKit.Bindings.dll" target="lib\net8.0" />
     <file src="bin\Release\net8.0\TALXIS.TestKit.Bindings.xml" target="lib\net8.0" />
-  <file src="..\TALXIS.TestKit.Bindings.MSBuild\bin\Release\netstandard2.0\**" target="build/TALXIS.TestKit.Bindings.MSBuild" />
+    <file src="bin\lib\TALXIS.TestKit.Bindings.MSBuild\**\*.*" target="build\TALXIS.TestKit.Bindings.MSBuild" />
     <file src="targets\TALXIS.TestKit.Bindings.targets" target="build" />
     <file src="bin\lib\driver.js" target="build" />
     <file src="content\power-apps-bindings.yml" target="content" />
