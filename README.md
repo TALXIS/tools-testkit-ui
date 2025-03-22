@@ -1,8 +1,11 @@
 # TALXIS TestKit Bindings
 
-This reqnroll bindings library for Power Apps has been created as a fork from the [powerapps-specflow-bindings library](https://github.com/Capgemini/powerapps-specflow-bindings) by Capgemini. 
+This Reqnroll bindings library for Power Apps.
+The aim of this project is to make Power Apps test automation easier, faster and more accessible. It does this by providing a library of generic Reqnroll step bindings that adhere to test automation best practices. This allows effective automated tests to be written without the dependency on developers who are both proficient with Power Apps and test automation.
 
-The aim of this project is to make Power Apps test automation easier, faster and more accessible. It does this by providing a library of generic reqnroll step bindings that adhere to test automation best practices. This allows effective automated tests to be written without the dependency on developers who are both proficient with Power Apps and test automation.
+## Thanks
+
+A huge thank you to Capgemini and, in particular, to [Max Ewing](https://github.com/ewingjm) and his collaborators, as well as all contributors to [powerapps-specflow-bindings library](https://github.com/Capgemini/powerapps-specflow-bindings). With Max's permission and support, this library has been forked from this repository.
 
 ## Table of Contents
 
@@ -20,13 +23,13 @@ The aim of this project is to make Power Apps test automation easier, faster and
 
 ## Installation
 
-Follow the guidance in the **Installation and Setup** section in reqnroll's documentation [documentation](https://docs.reqnroll.net/latest/installation/setup-project.html). After installing the IDE integration and setting up your project, install the NuGet package.
+Follow the guidance in the **Installation and Setup** section in Reqnroll documentation [documentation](https://docs.reqnroll.net/latest/installation/setup-project.html). After installing the IDE integration and setting up your project, install the NuGet package.
 
 ```shell
 PM> Install-Package TALXIS.TestKit.Bindings
 ```
 
-Once the NuGet package is installed, follow the reqnroll [documentation](https://docs.reqnroll.net/latest/installation/configuration.html) on referencing an external binding library. At the time of writing you should update a _reqnroll.json_ file in your project root as follows –
+Once the NuGet package is installed, follow the Reqnroll [documentation](https://docs.reqnroll.net/latest/installation/configuration.html) on referencing an external binding library. At the time of writing you should update a _reqnroll.json_ file in your project root as follows –
 
 ```json
 {
@@ -241,4 +244,3 @@ Please refer to the [Contributing](./CONTRIBUTING.md) guide.
 ## Licence
 
 TALXIS TestKit Bindings is released under the [MIT licence](./LICENCE).
-
