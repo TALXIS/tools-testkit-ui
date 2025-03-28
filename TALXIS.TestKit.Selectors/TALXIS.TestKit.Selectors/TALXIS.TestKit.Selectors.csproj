@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-  </PropertyGroup>
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyTitle>TALXIS.TestKit.Selectors</AssemblyTitle>
-    <Product>TALXIS.TestKit.Selectors</Product>
-    <Copyright>Copyright ©  2025</Copyright>
-    <AssemblyVersion>1.0.21208.0840</AssemblyVersion>
-    <FileVersion>1.0.21208.0840</FileVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AssemblyTitle>TALXIS.TestKit.Selectors</AssemblyTitle>
+		<Product>TALXIS.TestKit.Selectors</Product>
+		<AssemblyVersion>1.0.21208.0840</AssemblyVersion>
+		<FileVersion>1.0.21208.0840</FileVersion>
+		<PackageId>TALXIS.TestKit.Selectors</PackageId>
+		<Description>Selectors for TALXIS TestKit</Description>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />

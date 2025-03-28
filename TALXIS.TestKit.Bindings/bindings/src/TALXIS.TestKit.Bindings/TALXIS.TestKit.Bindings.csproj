@@ -1,48 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <AssemblyTitle>TALXIS.TestKit.Bindings</AssemblyTitle>
-    <Product>TALXIS.TestKit.Bindings</Product>
-    <Description>A Reqnroll bindings library for Power Apps.</Description>
-    <Version>1.0.0</Version>
-    <PackageIcon>icon.png</PackageIcon>
-    <Authors>NETWORG</Authors>
-    <Company>NETWORG</Company>
-    <PackageId>TALXIS.TestKit.Bindings</PackageId>
-    <PackageTags>powerapps reqnroll bindings automated-testing testing</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <DebugType>portable</DebugType>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <UserSecretsId>e01f5ecc-e0e0-4786-bde6-88d2bc04554e</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<AssemblyTitle>TALXIS.TestKit.Bindings</AssemblyTitle>
+		<Product>TALXIS.TestKit.Bindings</Product>
+		<Description>A Reqnroll bindings library for Power Apps.</Description>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageId>TALXIS.TestKit.Bindings</PackageId>
+		<PackageTags>powerapps reqnroll bindings automated-testing testing</PackageTags>
+		<UserSecretsId>e01f5ecc-e0e0-4786-bde6-88d2bc04554e</UserSecretsId>
+		<Title>TALXIS TestKit Bindings</Title>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' != 'Release'">
-    <UserSecretsId>$(ProjectName)</UserSecretsId>
-    <IncludeSource>True</IncludeSource>
-    <IncludeSymbols>True</IncludeSymbols>
-  </PropertyGroup>
+	<Target Name="CopyDriver" AfterTargets="Build">
+		<Exec Command="npm run build" WorkingDirectory="../../../driver" />
+		<Copy SourceFiles="../../../driver/dist/driver.js" DestinationFolder="bin/lib" />
+	</Target>
 
-  <PropertyGroup>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>TALXIS TestKit Bindings</Title>
-  </PropertyGroup>
+	<Target Name="CopyTargets" BeforeTargets="Build" DependsOnTargets="BuildMSBuildProject">
+		<ItemGroup>
+			<BindingsTargetsFiles Include="../TALXIS.TestKit.Bindings.MSBuild/bin/$(Configuration)/netstandard2.0/*.*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(BindingsTargetsFiles)" DestinationFolder="bin/lib/TALXIS.TestKit.Bindings.MSBuild" />
+	</Target>
 
-  <Target Name="CopyDriver" AfterTargets="Build">
-    <Exec Command="npm run build" WorkingDirectory="../../../driver" />
-    <Copy SourceFiles="../../../driver/dist/driver.js" DestinationFolder="bin/lib" />
-  </Target>
-
-  <Target Name="CopyTargets" AfterTargets="Build">
-    <ItemGroup>
-      <BindingsTargetsFiles Include="../TALXIS.TestKit.Bindings.MSBuild/bin/Release/netstandard2.0/*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(BindingsTargetsFiles)" DestinationFolder="bin/lib/TALXIS.TestKit.Bindings.MSBuild" />
-  </Target>
+	<Target Name="BuildMSBuildProject" BeforeTargets="CopyTargets">
+		<MSBuild Projects="../TALXIS.TestKit.Bindings.MSBuild/TALXIS.TestKit.Bindings.MSBuild.csproj" Targets="Build" Properties="Configuration=$(Configuration)" />
+	</Target>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
@@ -81,7 +64,7 @@
     <PackageReference Include="YamlDotNet" Version="9.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <Content Include="Targets\**">
       <Pack>true</Pack>
       <PackagePath>build</PackagePath>
