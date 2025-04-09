@@ -1,6 +1,6 @@
 # TALXIS TestKit Bindings
 
-This Reqnroll bindings library for Power Apps.
+Reqnroll bindings library for Power Apps.
 The aim of this project is to make Power Apps test automation easier, faster and more accessible. It does this by providing a library of generic Reqnroll step bindings that adhere to test automation best practices. This allows effective automated tests to be written without the dependency on developers who are both proficient with Power Apps and test automation.
 
 ## Thanks
