@@ -18,4 +18,22 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+	<Target Name="CopyOutputFiles" AfterTargets="Build">
+		<PropertyGroup>
+			<TargetCopyDir>$(MSBuildProjectDirectory)\..\TALXIS.TestKit.Bindings\bin\lib\$(MSBuildProjectName)\</TargetCopyDir>
+		</PropertyGroup>
+
+		<MakeDir Directories="$(TargetCopyDir)" />
+
+		<ItemGroup>
+			<BuiltFiles Include="$(OutputPath)**\*.*" />
+		</ItemGroup>
+
+		<Copy
+		  SourceFiles="@(BuiltFiles)"
+		  DestinationFolder="$(TargetCopyDir)"
+		  SkipUnchangedFiles="true"
+		  OverwriteReadOnlyFiles="true" />
+	</Target>
 </Project>

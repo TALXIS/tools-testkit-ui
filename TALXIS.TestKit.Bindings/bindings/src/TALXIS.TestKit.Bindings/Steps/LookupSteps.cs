@@ -106,8 +106,8 @@
         [When(@"I select a related '(.*)' lookup field")]
         public static void WhenISelectARelatedLookupInTheForm(string lookupLabel)
         {
-            string lookupName = XrmApp.Entity.GetFieldLogicalNameFromLabel(Driver, lookupLabel);
-            XrmApp.Lookup.SelectRelatedLookupRecord(lookupName);
+            string lookupLogicalName = XrmApp.Entity.GetFieldLogicalNameFromLabel(Driver, lookupLabel);
+            XrmApp.Lookup.SelectRelatedLookupRecord(lookupLogicalName);
         }
 
         /// <summary>
