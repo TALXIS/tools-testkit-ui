@@ -1,0 +1,37 @@
+name: Build and Publish NuGet Packages
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build TALXIS.TestKit.Bindings.MSBuild
+      run: dotnet build ./TALXIS.TestKit.Bindings/bindings/src/TALXIS.TestKit.Bindings.MSBuild/TALXIS.TestKit.Bindings.MSBuild.csproj --configuration Release
+
+    - name: Build TALXIS.TestKit.Bindings
+      run: dotnet build ./TALXIS.TestKit.Bindings/bindings/src/TALXIS.TestKit.Bindings/TALXIS.TestKit.Bindings.csproj --configuration Release
+
+    - name: Build TALXIS.TestKit.Selectors
+      run: dotnet build ./TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors.csproj --configuration Release
+
+    - name: Build TALXIS.TestKit.Selectors.Browser
+      run: dotnet build ./TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors.Api.Browser/TALXIS.TestKit.Selectors.Browser.csproj --configuration Release
+
+    - name: Push packages to NuGet
+      run: dotnet nuget push "**/*.nupkg" --skip-duplicate --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json

@@ -84,4 +84,8 @@
     <None Include="icon.png" Pack="true" PackagePath="\" />
     <None Include="..\..\..\driver\**\*.ts" Exclude="..\..\..\driver\node_modules\**\*" Visible="false" />
   </ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\TALXIS.TestKit.Bindings.MSBuild\TALXIS.TestKit.Bindings.MSBuild.csproj" />
+	</ItemGroup>
 </Project>
