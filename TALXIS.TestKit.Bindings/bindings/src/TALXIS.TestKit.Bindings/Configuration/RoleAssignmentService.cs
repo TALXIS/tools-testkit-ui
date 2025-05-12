@@ -15,11 +15,11 @@ namespace TALXIS.TestKit.Bindings.Configuration
             _serviceClient = serviceClient;
         }
 
-        public void UpdateSecurityRoles(string username, List<Guid> roleIds)
+        public void UpdateSecurityRoles(string user, List<Guid> roleIds)
         {
-            ArgumentNullException.ThrowIfNull(username, nameof(username));
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-            Guid? userIdNullable = GetUserIdByEmail(username);
+            Guid? userIdNullable = GetUserIdByEmailOrUsername(user);
 
             ArgumentNullException.ThrowIfNull(userIdNullable, nameof(userIdNullable));
 
@@ -96,16 +96,26 @@ namespace TALXIS.TestKit.Bindings.Configuration
             );
         }
 
-        private Guid? GetUserIdByEmail(string email)
+        private Guid? GetUserIdByEmailOrUsername(string user)
         {
             var query = new QueryExpression("systemuser")
             {
                 ColumnSet = new ColumnSet("systemuserid", "domainname"),
-                Criteria = new FilterExpression
+                Criteria = new FilterExpression(LogicalOperator.And)
                 {
+                    Filters =
+                    {
+                        new FilterExpression(LogicalOperator.Or)
+                        {
+                            Conditions =
+                            {
+                                new ConditionExpression("domainname", ConditionOperator.Equal, user),
+                                new ConditionExpression("internalemailaddress", ConditionOperator.Equal, user)
+                            }
+                        }
+                    },
                     Conditions =
                     {
-                        new ConditionExpression("domainname", ConditionOperator.Equal, email),
                         new ConditionExpression("isdisabled", ConditionOperator.Equal, false)
                     }
                 }
