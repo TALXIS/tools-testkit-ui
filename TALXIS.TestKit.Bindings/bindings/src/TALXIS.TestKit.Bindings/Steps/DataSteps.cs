@@ -62,7 +62,7 @@
         {
             TestDriver.LoadTestDataAsUser(
                 TestDataRepository.GetTestData(fileName),
-                TestConfig.GetUser(alias).Username);
+                TestConfig.GetPersona(alias).Username);
         }
     }
 }

@@ -99,7 +99,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
 
         private static bool TryClickCommand(IWebElement ribbon, string name, IWebDriver driver)
         {
-            if (ribbon.TryFindElement(EntityElementsLocators.SubGridCommandLabel( name), out var command))
+            if (ribbon.TryFindElement(EntityElementsLocators.SubGridCommandLabel(name), out var command))
             {
                 command.Click(true);
                 driver.WaitForTransaction();

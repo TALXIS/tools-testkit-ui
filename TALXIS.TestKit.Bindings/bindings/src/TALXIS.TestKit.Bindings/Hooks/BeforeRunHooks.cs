@@ -58,7 +58,7 @@
                         var webClient = new WebClient(userBrowserOptions);
                         using (var app = new XrmApp(webClient))
                         {
-                            var user = TestConfig.Users.First(u => u.Username == username);
+                            var user = TestConfig.Personas.First(u => u.Username == username);
                             app.OnlineLogin.Login(TestConfig.GetTestUrl(), user.Username.ToSecureString(), user.Password.ToSecureString());
                         }
                     }

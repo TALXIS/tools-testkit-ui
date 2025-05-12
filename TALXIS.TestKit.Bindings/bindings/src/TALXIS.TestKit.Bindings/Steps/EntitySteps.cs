@@ -519,7 +519,7 @@
         [Then(@"^the status of the record should be (active|inactive)$")]
         public static void ThenTheStatusOfTheRecordShouldBe(string status)
         {
-            GetFormStatus().Should().BeEquivalentTo(status);
+            GetFormStatus().ToLower().Should().BeEquivalentTo(status.ToLower());
         }
 
         /// <summary>
@@ -561,7 +561,7 @@
         {
             var result = XrmApp.Entity.GetFormStatus();
 
-            if (string.IsNullOrEmpty(result))
+            if (!string.IsNullOrWhiteSpace(result))
             {
                 return result;
             }

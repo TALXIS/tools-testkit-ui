@@ -46,7 +46,7 @@
         /// <summary>
         /// Gets access token used to authenticate as the application user configured for testing.
         /// </summary>
-        protected static string AccessToken
+        internal static string AccessToken
         {
             get
             {
@@ -193,7 +193,7 @@
                     var profilesDirectory = Path.Combine(basePath, "profiles", "SaveProfiles");
 
                     Directory.CreateDirectory(profilesDirectory);
-                    userProfilesDirectories = TestConfig.Users
+                    userProfilesDirectories = TestConfig.Personas
                         .Where(u => !string.IsNullOrEmpty(u.Password))
                         .Select(u => u.Username)
                         .Distinct()

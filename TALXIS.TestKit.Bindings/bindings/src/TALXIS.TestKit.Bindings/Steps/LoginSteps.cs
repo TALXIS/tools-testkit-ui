@@ -1,18 +1,11 @@
 ﻿namespace TALXIS.TestKit.Bindings.Steps
 {
     using System;
-    using System.IO;
-    using Newtonsoft.Json;
     using OpenQA.Selenium;
     using Reqnroll;
     using TALXIS.TestKit.Selectors;
     using TALXIS.TestKit.Selectors.Browser;
-    using System.Collections.Generic;
     using TALXIS.TestKit.Bindings.Configuration;
-    using TALXIS.TestKit.Bindings.Extensions;
-    using AngleSharp.Dom;
-    using System.Threading;
-    using OpenQA.Selenium.DevTools;
     using TALXIS.TestKit.Bindings.Extensions.CookiesManagement;
 
     /// <summary>
@@ -29,10 +22,24 @@
         [Given("I am logged in to the '(.*)' app as '(.*)'")]
         public static void GivenIAmLoggedInToTheAppAs(string appName, string userAlias)
         {
-            var user = TestConfig.GetUser(userAlias, useCurrentUser: false);
+            var user = TestConfig.GetPersona(userAlias, useCurrentUser: false);
+            
+
             var url = TestConfig.GetTestUrl();
             var driver = Driver;
-
+            /*
+            var roleAssignmentService = new RoleAssignmentService(
+                DataverseServiceClientFactory.CreateWithClientCredentials(
+                    TestConfig.Url,
+                    TestConfig.ApplicationUser));
+             */
+            var roleAssignmentService = new RoleAssignmentService(
+                DataverseServiceClientFactory.CreateWithToken(
+                    TestConfig.Url,
+                    AccessToken));
+            
+           roleAssignmentService.UpdateSecurityRoles(user.Username, user.SecurityRoles);
+           
             Login(driver, url, user);
 
             if (!url.Query.Contains("appid"))
@@ -47,7 +54,7 @@
             WaitForMainPage(driver);
         }
 
-        private static void Login(IWebDriver driver, Uri url, UserConfiguration user)
+        private static void Login(IWebDriver driver, Uri url, PersonaConfiguration user)
         {
             if (!CookieManager.UserLoginCookies.ContainsKey(user.Username))
             {
@@ -68,7 +75,7 @@
             }
         }
 
-        private static void LoginViaUi(Uri url, UserConfiguration user)
+        private static void LoginViaUi(Uri url, PersonaConfiguration user)
         {
             if (!string.IsNullOrEmpty(user.OtpToken))
             {
