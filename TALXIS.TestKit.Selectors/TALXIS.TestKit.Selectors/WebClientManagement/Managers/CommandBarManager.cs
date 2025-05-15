@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using OpenQA.Selenium;
 using TALXIS.TestKit.Selectors.DTO.Locators;
 using TALXIS.TestKit.Selectors.Browser;
+using System.Linq;
+using OpenQA.Selenium.Support.UI;
+using System.Threading;
 
 namespace TALXIS.TestKit.Selectors.WebClientManagement
 {
@@ -20,16 +23,60 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Command name cannot be empty", nameof(name));
 
-            return Client.Execute(Client.GetOptions($"Click Command: {name}"), driver =>
+            return Client.Execute(Client.GetOptions($"Click Command: {name} > {subname}"), driver =>
             {
                 var ribbon = GetRibbon(driver);
 
-                // Try clicking on the command
-                if (TryClickCommand(ribbon, name, driver)) return true;
-                if (TryClickOverflowCommand(ribbon, name, driver)) return true;
+                if (TryClickFlyoutCommand(ribbon, name, subname, driver))
+                    return true;
 
+                if (TryClickCommand(ribbon, name, driver))
+                    return true;
+
+                if (TryClickOverflowCommand(ribbon, name, driver))
+                    return true;
+                
                 throw new InvalidOperationException($"No command with the name '{name}' exists in the CommandBar.");
             });
+        }
+
+        private bool TryClickFlyoutCommand(IWebElement ribbon, string name, string subname, IWebDriver driver)
+        {
+            try
+            {
+                var flyoutButton = ribbon.FindElements(By.XPath(
+                    $".//button[contains(@aria-label,'{name}') or .//span[contains(text(),'{name}')]]"))
+                    .FirstOrDefault();
+
+                if (flyoutButton == null)
+                    return false;
+
+                flyoutButton.Click();
+
+                Thread.Sleep(500);
+
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+                wait.Until(d =>
+                    d.FindElements(By.XPath($"//button[.//span[contains(text(),'{subname}')]]")).Any()
+                );
+
+                var subCommand = driver.FindElements(By.XPath(
+                    $"//button[.//span[contains(text(),'{subname}')]]")).FirstOrDefault();
+
+                if (subCommand != null)
+                {
+                    subCommand.Click();
+                    driver.WaitForTransaction(); 
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("TryClickFlyoutCommand failed: " + ex.Message);
+                return false;
+            }
         }
 
         /// <summary>
@@ -105,6 +152,19 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                 driver.WaitForTransaction();
                 return true;
             }
+
+            var buttons = ribbon.FindElements(By.XPath($".//button[.//span[contains(text(), '{name}')]]"));
+            foreach (var btn in buttons)
+            {
+                try
+                {
+                    btn.Click();
+                    driver.WaitForTransaction();
+                    return true;
+                }
+                catch { }
+            }
+
             return false;
         }
 
@@ -120,7 +180,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
             driver.WaitForTransaction();
 
             var flyOutMenu = driver.WaitUntilAvailable(RelatedElementsLocators.CommandBarFlyoutButtonList);
-            if (flyOutMenu.TryFindElement(EntityElementsLocators.SubGridCommandLabel( name), out var overflowCommand))
+            if (flyOutMenu.TryFindElement(EntityElementsLocators.SubGridCommandLabel(name), out var overflowCommand))
             {
                 overflowCommand.Click(true);
                 driver.WaitForTransaction();
@@ -159,7 +219,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
             return GetCommandNames(commandBarItems.Values);
         }
 
-        
+
 
     }
 }

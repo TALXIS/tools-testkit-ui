@@ -23,7 +23,7 @@
         public static void GivenIAmLoggedInToTheAppAs(string appName, string userAlias)
         {
             var user = TestConfig.GetPersona(userAlias, useCurrentUser: false);
-            
+
 
             var url = TestConfig.GetTestUrl();
             var driver = Driver;
@@ -37,9 +37,9 @@
                 DataverseServiceClientFactory.CreateWithToken(
                     TestConfig.Url,
                     AccessToken));
-            
-           roleAssignmentService.UpdateSecurityRoles(user.Username, user.SecurityRoles);
-           
+
+            roleAssignmentService.UpdateSecurityRoles(user.Username, user.SecurityRoles);
+
             Login(driver, url, user);
 
             if (!url.Query.Contains("appid"))
