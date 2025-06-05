@@ -437,9 +437,6 @@ namespace TALXIS.TestKit.Selectors
             _timelineManager.SelectTab(tabName, subTabName);
         }
 
-        
-
-
         public void SetHeaderValue(string field, string value)
         {
             _entityManager.SetHeaderValue(field, value);

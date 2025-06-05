@@ -1,6 +1,8 @@
 ﻿namespace TALXIS.TestKit.Bindings.Steps
 {
     using System;
+    using System.IO;
+    using System.Text.Json;
     using Reqnroll;
     using TALXIS.TestKit.Bindings;
     using TALXIS.TestKit.Selectors.Browser;
@@ -31,8 +33,10 @@
         [Given(@"'(.*)' exists")]
         public static void GivenIHaveCreated(string fileName)
         {
-            TestDriver.LoadTestData(TestDataRepository.GetTestData(fileName));
+            string json = TestDataRepository.GetTestData(fileName);
 
+            TestDriver.LoadTestData(json);
+            
             Driver.WaitForTransaction();
         }
 

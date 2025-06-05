@@ -30,8 +30,34 @@ export default class Driver {
     const testRecord = JSON.parse(json) as TestRecord;
     const logicalName = testRecord['@logicalName'];
 
-    return this.dataManager.createData(logicalName, testRecord);
+    if (!logicalName) {
+      throw new Error("Missing '@logicalName' in test data.");
+    }
+
+    const { statecode, statuscode, ...createFields } = testRecord as {
+      statecode?: number;
+      statuscode?: number;
+    } & TestRecord;
+
+    const created = await this.dataManager.createData(logicalName, createFields);
+
+    const normalizedState = typeof statecode === "string" ? Number(statecode) : statecode;
+    const normalizedStatus = typeof statuscode === "string" ? Number(statuscode) : statuscode;
+
+    if (
+      normalizedState !== undefined &&
+      normalizedStatus !== undefined &&
+      !isNaN(normalizedState) &&
+      !isNaN(normalizedStatus)
+    ) {
+      await this.applyStateChange(created, normalizedState, normalizedStatus);
+    }
+
+    return created;
   }
+
+
+
 
   /**
        *
@@ -85,4 +111,25 @@ export default class Driver {
   public getRecordReference(alias: string): Xrm.LookupValue {
     return this.dataManager.refsByAlias[alias];
   }
+
+  private async applyStateChange(
+    reference: Xrm.LookupValue,
+    statecode: number,
+    statuscode: number
+  ): Promise<void> {
+    if (!reference.entityType || !reference.id) {
+      throw new Error('Invalid reference provided for state change.');
+    }
+
+    try {
+      await Xrm.WebApi.online.updateRecord(reference.entityType, reference.id, {
+        statecode,
+        statuscode
+      });
+    } catch (error) {
+      throw new Error('State change failed: ' + (error as Error).message);
+    }
+
+  }
+
 }

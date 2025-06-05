@@ -5,8 +5,10 @@
     using System.IO;
     using System.Reflection;
     using System.Text;
+    using Gherkin.Ast;
     using Microsoft.Xrm.Sdk;
     using OpenQA.Selenium;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     /// <summary>
     /// Assists in test setup.

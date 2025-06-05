@@ -20,8 +20,7 @@ namespace TALXIS.TestKit.Bindings.Configuration
         {
             string connectionString = $"AuthType=ClientSecret;Url={ExtractBaseUrl(dataverseUrl)};ClientId={credentials.ClientId};ClientSecret={credentials.ClientSecret};TenantId={credentials.TenantId};";
 
-            return new ServiceClient(
-                dataverseConnectionString: connectionString);
+            return new ServiceClient(dataverseConnectionString: connectionString);
         }
 
         public static string ExtractBaseUrl(string fullUrl)
@@ -31,7 +30,6 @@ namespace TALXIS.TestKit.Bindings.Configuration
 
             var uri = new Uri(fullUrl);
 
-            // Собираем базовый URL (scheme + host)
             return $"{uri.Scheme}://{uri.Host}";
         }
     }

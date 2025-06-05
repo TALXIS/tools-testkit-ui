@@ -27,14 +27,21 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
             {
                 var ribbon = GetRibbon(driver);
 
-                if (TryClickFlyoutCommand(ribbon, name, subname, driver))
-                    return true;
+                if (!string.IsNullOrEmpty(subname))
+                {
+                    if (TryClickFlyoutCommand(ribbon, name, subname, driver))
+                        return true;
+                }
+                else
+                {
+                    if (TryClickCommand(ribbon, name, driver))
+                        return true;
 
-                if (TryClickCommand(ribbon, name, driver))
-                    return true;
 
-                if (TryClickOverflowCommand(ribbon, name, driver))
-                    return true;
+                    if (TryClickOverflowCommand(ribbon, name, driver))
+                        return true;
+                }
+                
                 
                 throw new InvalidOperationException($"No command with the name '{name}' exists in the CommandBar.");
             });

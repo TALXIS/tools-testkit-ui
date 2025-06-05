@@ -24,7 +24,6 @@
         {
             var user = TestConfig.GetPersona(userAlias, useCurrentUser: false);
 
-
             var url = TestConfig.GetTestUrl();
             var driver = Driver;
             /*
@@ -32,11 +31,11 @@
                 DataverseServiceClientFactory.CreateWithClientCredentials(
                     TestConfig.Url,
                     TestConfig.ApplicationUser));
-             */
+            */
             var roleAssignmentService = new RoleAssignmentService(
-                DataverseServiceClientFactory.CreateWithToken(
-                    TestConfig.Url,
-                    AccessToken));
+               DataverseServiceClientFactory.CreateWithToken(
+                   TestConfig.Url,
+                   AccessToken));
 
             roleAssignmentService.UpdateSecurityRoles(user.Username, user.SecurityRoles);
 

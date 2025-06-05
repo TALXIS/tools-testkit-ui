@@ -2,6 +2,7 @@
 {
     using System.IO;
     using System.Reflection;
+    using OpenQA.Selenium.Firefox;
 
     /// <summary>
     /// Reads test data from JSON files.
