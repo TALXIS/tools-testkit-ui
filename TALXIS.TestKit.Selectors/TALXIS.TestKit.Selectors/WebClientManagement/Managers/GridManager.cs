@@ -10,6 +10,8 @@ using OpenQA.Selenium.Interactions;
 using TALXIS.TestKit.Selectors.DTO.Locators;
 using TALXIS.TestKit.Selectors.WebClientManagement.Helpers;
 using TALXIS.TestKit.Selectors.Browser;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace TALXIS.TestKit.Selectors.WebClientManagement
 {
@@ -22,6 +24,122 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
             Client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
+        public List<string> GetSubGridNames()
+        {
+            return this.Client.Execute(Client.GetOptions("Click Related Tab Command"), driver =>
+            {
+                var subGridNames = new List<string>();
+                var foundGrids = driver.FindElements(By.XPath("//div[contains(@data-lp-id,'ReadOnlyGrid') and not(contains(@data-lp-id,'header-container'))]"));
+                foreach (var gridElement in foundGrids)
+                {
+                    string name = gridElement.GetAttribute("aria-label") ?? gridElement.GetAttribute("id");
+                    if (!string.IsNullOrWhiteSpace(name) && !subGridNames.Contains(name))
+                    {
+                        subGridNames.Add(name);
+                    }
+                }
+
+                return subGridNames;
+            });
+        }
+
+        internal List<Dictionary<string, string>> GetDatafromSubgrid(string subgridName = null)
+        {
+            var commandResult = Client.Execute(Client.GetOptions("Get data from subgrid"), driver =>
+            {
+                try
+                {
+                    string script = @"
+                        function getParsedRowsFromFirstSubgrid(subgridName) {
+                            var foundGrid = null;
+
+                            if (!subgridName || subgridName.trim() === '') {
+                                Xrm.Page.ui.controls.forEach(function(ctrl) {
+                                    if (!foundGrid && ctrl.getControlType && ctrl.getControlType() === 'subgrid') {
+                                        foundGrid = ctrl.getGrid();
+                                    }
+                                });
+                            }
+                            else{
+                                Xrm.Page.ui.controls.forEach(function(ctrl) {
+                                    if (!foundGrid && ctrl.getControlType && ctrl.getControlType() === 'subgrid' && ctrl.getName() === subgridName) {
+                                        foundGrid = ctrl;
+                                    }
+                                });
+                            }
+
+                            if (!foundGrid) {
+                                throw new Error(""No subgrid found."");
+                            }
+
+                            var rows = foundGrid.getRows();
+                            var parsedRows = [];
+
+                            rows.forEach(function(row) {
+                                var entity = row.getData().getEntity();
+                                var parsedRow = {};
+
+                                entity.attributes.forEach(function(attribute) {
+                                    var attrName = attribute.getName();
+                                    var value = attribute.getValue();
+
+                                    if (value === null || value === undefined) {
+                                        parsedRow[attrName] = null;
+                                    }
+                                    else if (typeof value === ""object"" && value.hasOwnProperty(""name"")) {
+                                        parsedRow[attrName] = value.name;
+                                    }
+                                    else if (Array.isArray(value)) {
+                                        parsedRow[attrName] = value.map(v => v.name).join("", "");
+                                    }
+                                    else if (value instanceof Date) {
+                                        parsedRow[attrName] = value.toLocaleDateString();
+                                    }
+                                    else {
+                                        parsedRow[attrName] = value.toString();
+                                    }
+                                });
+
+                                parsedRows.push(parsedRow);
+                            });
+
+                            return parsedRows;
+                        }
+
+                        return getParsedRowsFromFirstSubgrid();
+                    ";
+                    /*
+                    IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
+                    var result = jsExecutor.ExecuteScript(script);
+
+                    // Здесь конвертируем результат в нужный тип
+                    var rawResult = result as IEnumerable<object>;
+
+                    var parsedResult = rawResult?
+                        .Cast<Dictionary<string, object>>()
+                        .Select(dict => dict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString()))
+                        .ToList();
+                    */
+
+                    IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
+                    var resultJson = jsExecutor.ExecuteScript(script, subgridName)?.ToString();
+
+                    if (string.IsNullOrWhiteSpace(resultJson))
+                        return new List<Dictionary<string, string>>();
+
+                    var parsedResult = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(resultJson);
+
+                    return parsedResult ?? new List<Dictionary<string, string>>();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+            });
+
+            return commandResult;
+        }
+
         public BrowserCommandResult<bool> ClickRelatedCommand(string name, string subName = null, string subSecondName = null)
         {
             return this.Client.Execute(Client.GetOptions("Click Related Tab Command"), driver =>
@@ -30,9 +148,9 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                 var relatedCommandBarButtonList = driver.WaitUntilAvailable(RelatedElementsLocators.CommandBarButtonList);
 
                 // Validate list has provided command bar button
-                if (relatedCommandBarButtonList.HasElement(RelatedElementsLocators.CommandBarButton( name)))
+                if (relatedCommandBarButtonList.HasElement(RelatedElementsLocators.CommandBarButton(name)))
                 {
-                    relatedCommandBarButtonList.FindElement(RelatedElementsLocators.CommandBarButton( name)).Click(true);
+                    relatedCommandBarButtonList.FindElement(RelatedElementsLocators.CommandBarButton(name)).Click(true);
 
                     driver.WaitForTransaction();
 
@@ -43,10 +161,10 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                         {
                             var overFlowContainer = driver.FindElement(RelatedElementsLocators.CommandBarOverflowContainer);
 
-                            if (!overFlowContainer.HasElement(RelatedElementsLocators.CommandBarSubButton( subName)))
+                            if (!overFlowContainer.HasElement(RelatedElementsLocators.CommandBarSubButton(subName)))
                                 throw new NotFoundException($"{subName} button not found");
 
-                            overFlowContainer.FindElement(RelatedElementsLocators.CommandBarSubButton( subName)).Click(true);
+                            overFlowContainer.FindElement(RelatedElementsLocators.CommandBarSubButton(subName)).Click(true);
 
                             driver.WaitForTransaction();
                         }
@@ -58,10 +176,10 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                             {
                                 var overFlowContainer = driver.FindElement(RelatedElementsLocators.CommandBarOverflowContainer);
 
-                                if (!overFlowContainer.HasElement(RelatedElementsLocators.CommandBarSubButton( subName)))
+                                if (!overFlowContainer.HasElement(RelatedElementsLocators.CommandBarSubButton(subName)))
                                     throw new NotFoundException($"{subName} button not found");
 
-                                overFlowContainer.FindElement(RelatedElementsLocators.CommandBarSubButton( subName)).Click(true);
+                                overFlowContainer.FindElement(RelatedElementsLocators.CommandBarSubButton(subName)).Click(true);
 
                                 driver.WaitForTransaction();
                             }
@@ -84,9 +202,9 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                         {
                             var overFlowContainer = driver.FindElement(RelatedElementsLocators.CommandBarOverflowContainer);
 
-                            if (overFlowContainer.HasElement(RelatedElementsLocators.CommandBarButton( name)))
+                            if (overFlowContainer.HasElement(RelatedElementsLocators.CommandBarButton(name)))
                             {
-                                overFlowContainer.FindElement(RelatedElementsLocators.CommandBarButton( name)).Click(true);
+                                overFlowContainer.FindElement(RelatedElementsLocators.CommandBarButton(name)).Click(true);
 
                                 driver.WaitForTransaction();
 
@@ -105,10 +223,10 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                                     {
                                         overFlowContainer = driver.FindElement(RelatedElementsLocators.CommandBarOverflowContainer);
 
-                                        if (!overFlowContainer.HasElement(RelatedElementsLocators.CommandBarSubButton( subName)))
+                                        if (!overFlowContainer.HasElement(RelatedElementsLocators.CommandBarSubButton(subName)))
                                             throw new NotFoundException($"{subName} button not found");
 
-                                        overFlowContainer.FindElement(RelatedElementsLocators.CommandBarSubButton( subName)).Click(true);
+                                        overFlowContainer.FindElement(RelatedElementsLocators.CommandBarSubButton(subName)).Click(true);
 
                                         driver.WaitForTransaction();
                                     }
@@ -140,7 +258,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
 
             return Client.Execute(Client.GetOptions($"Click add button of subgrid: {subgridName}"), driver =>
             {
-                driver.FindElement(EntityElementsLocators.SubGridAddButton( subgridName))?.Click();
+                driver.FindElement(EntityElementsLocators.SubGridAddButton(subgridName))?.Click();
 
                 return true;
             });
@@ -213,7 +331,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
 
             return Client.Execute(Client.GetOptions($"Get Sub Grid Control"), driver =>
             {
-                var subGrid = driver.FindElement(EntityElementsLocators.SubGridContents( subGridName));
+                var subGrid = driver.FindElement(EntityElementsLocators.SubGridContents(subGridName));
 
                 return subGrid.GetAttribute("innerHTML");
             });
@@ -412,11 +530,11 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
             return Client.Execute(Client.GetOptions($"Click SubGrid Command: {name}"), driver =>
             {
                 // Find SubGrid
-                var subGrid = driver.FindElement(EntityElementsLocators.SubGridContents( subGridName))
+                var subGrid = driver.FindElement(EntityElementsLocators.SubGridContents(subGridName))
                     ?? throw new NotFoundException($"Unable to locate subgrid contents for {subGridName}.");
 
                 // Find the command panel
-                if (!subGrid.TryFindElement(EntityElementsLocators.SubGridCommandBar( subGridName), out var subGridCommandBar))
+                if (!subGrid.TryFindElement(EntityElementsLocators.SubGridCommandBar(subGridName), out var subGridCommandBar))
                     throw new InvalidOperationException($"Unable to locate the Commandbar for {subGridName}.");
 
                 // Click on a command (if it is in the CommandBar)
@@ -440,7 +558,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
             {
                 // Find the SubGrid
                 var subGrid = driver.WaitUntilAvailable(
-                    EntityElementsLocators.SubGridContents( subGridName),
+                    EntityElementsLocators.SubGridContents(subGridName),
                     5.Seconds(),
                     $"Unable to find subgrid named {subGridName}.");
 
@@ -532,15 +650,15 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                     throw new NotFoundException($"Unable to locate subgrid contents for {subgridName} subgrid.");
 
                 // Check if ReadOnlyGrid was found
-                if (subGrid.TryFindElement(EntityElementsLocators.SubGridListCells( subgridName), out subGridRecordList))
+                if (subGrid.TryFindElement(EntityElementsLocators.SubGridListCells(subgridName), out subGridRecordList))
                 {
 
                     // Locate record list
-                    var foundRecords = subGrid.TryFindElement(EntityElementsLocators.SubGridListCells( subgridName), out subGridRecordList);
+                    var foundRecords = subGrid.TryFindElement(EntityElementsLocators.SubGridListCells(subgridName), out subGridRecordList);
 
                     if (foundRecords)
                     {
-                        var subGridRecordRows = subGrid.FindElements(EntityElementsLocators.SubGridList( subgridName));
+                        var subGridRecordRows = subGrid.FindElements(EntityElementsLocators.SubGridList(subgridName));
                         var SubGridContainer = driver.FindElement(EntityElementsLocators.SubGridContents(subgridName));
                         string[] gridDataId = SubGridContainer.FindElement(By.XPath($"//div[contains(@data-lp-id,'{subgridName}')]")).GetAttribute("data-lp-id").Split('|');
                         //Need to add entity name
@@ -576,7 +694,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                     }
                 }
                 // Attempt to locate the editable grid list
-                else if (subGrid.TryFindElement(EntityElementsLocators.EditableSubGridList( subgridName), out subGridRecordList))
+                else if (subGrid.TryFindElement(EntityElementsLocators.EditableSubGridList(subgridName), out subGridRecordList))
                 {
                     //Find the columns
                     var headerCells = subGrid.FindElements(EntityElementsLocators.SubGridHeadersEditable);
@@ -624,7 +742,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                     return subGridRows;
                 }
                 // Special 'Related' high density grid control for entity forms
-                else if (subGrid.TryFindElement(EntityElementsLocators.SubGridHighDensityList( subgridName), out subGridRecordList))
+                else if (subGrid.TryFindElement(EntityElementsLocators.SubGridHighDensityList(subgridName), out subGridRecordList))
                 {
                     //Find the columns
                     var headerCells = subGrid.FindElements(EntityElementsLocators.SubGridHeadersHighDensity);
@@ -733,7 +851,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                     }
                     else
                     {
-                        gridRow = driver.FindElement(GridElementsLocators.Row( index.ToString()));
+                        gridRow = driver.FindElement(GridElementsLocators.Row(index.ToString()));
                         lastRow = true;
                     }
                     if (driver.HasElement(GridElementsLocators.LastRow))
@@ -796,12 +914,12 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
 
                 // Find list of SubGrid records
                 IWebElement subGridRecordList = null;
-                var foundGrid = subGrid.TryFindElement(EntityElementsLocators.SubGridListCells( subgridName), out subGridRecordList);
+                var foundGrid = subGrid.TryFindElement(EntityElementsLocators.SubGridListCells(subgridName), out subGridRecordList);
 
                 // Read Only Grid Found
                 if (subGridRecordList != null && foundGrid)
                 {
-                    var subGridRecordRows = subGrid.FindElements(EntityElementsLocators.SubGridListCells( subgridName));
+                    var subGridRecordRows = subGrid.FindElements(EntityElementsLocators.SubGridListCells(subgridName));
                     if (subGridRecordRows == null)
                         throw new NoSuchElementException($"No records were found for subgrid {subgridName}");
                     Actions actions = new Actions(driver);
@@ -829,7 +947,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                 else if (!foundGrid)
                 {
                     // Read Only Grid Not Found
-                    var foundEditableGrid = subGrid.TryFindElement(EntityElementsLocators.EditableSubGridList( subgridName), out subGridRecordList);
+                    var foundEditableGrid = subGrid.TryFindElement(EntityElementsLocators.EditableSubGridList(subgridName), out subGridRecordList);
 
                     if (foundEditableGrid)
                     {
@@ -909,7 +1027,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                 IWebElement subGridSearchField = null;
 
                 // Find the SubGrid
-                var subGrid = driver.FindElement(EntityElementsLocators.SubGridContents( subGridName));
+                var subGrid = driver.FindElement(EntityElementsLocators.SubGridContents(subGridName));
 
                 if (subGrid != null)
                 {
@@ -968,7 +1086,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                 IWebElement viewPicker = null;
 
                 // Find the SubGrid
-                var subGrid = driver.FindElement(EntityElementsLocators.SubGridContents( subGridName));
+                var subGrid = driver.FindElement(EntityElementsLocators.SubGridContents(subGridName));
 
                 var foundPicker = subGrid.TryFindElement(EntityElementsLocators.SubGridViewPickerButton, out viewPicker);
 
@@ -1078,7 +1196,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
 
             var overflowContainer = driver.FindElement(EntityElementsLocators.SubGridOverflowContainer);
 
-            if (!overflowContainer.TryFindElement(EntityElementsLocators.SubGridOverflowButton( subName), out var overflowButton))
+            if (!overflowContainer.TryFindElement(EntityElementsLocators.SubGridOverflowButton(subName), out var overflowButton))
                 throw new InvalidOperationException($"No command '{subName}' under '{name}' in {subGridName} Commandbar.");
 
             overflowButton.Click(true);
@@ -1126,7 +1244,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
 
         private static bool TryClickCommand(IWebElement commandBar, string commandName, IWebDriver driver)
         {
-            if (commandBar.TryFindElement(EntityElementsLocators.SubGridCommandLabel( commandName), out var command))
+            if (commandBar.TryFindElement(EntityElementsLocators.SubGridCommandLabel(commandName), out var command))
             {
                 command.Click(true);
                 driver.WaitForTransaction();
@@ -1137,7 +1255,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
 
         private static bool TryClickMoreCommands(IWebElement commandBar, string commandName, IWebDriver driver, string subGridName)
         {
-            if (!commandBar.TryFindElement(EntityElementsLocators.SubGridOverflowButton( "More commands"), out var moreCommands))
+            if (!commandBar.TryFindElement(EntityElementsLocators.SubGridOverflowButton("More commands"), out var moreCommands))
                 return false;
 
             moreCommands.Click(true);
@@ -1145,7 +1263,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
 
             var overflowContainer = driver.FindElement(EntityElementsLocators.SubGridOverflowContainer);
 
-            if (overflowContainer.TryFindElement(EntityElementsLocators.SubGridOverflowButton( commandName), out var overflowCommand))
+            if (overflowContainer.TryFindElement(EntityElementsLocators.SubGridOverflowButton(commandName), out var overflowCommand))
             {
                 overflowCommand.Click(true);
                 driver.WaitForTransaction();
@@ -1164,5 +1282,17 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                 return overFlowContainer.FindElement(By.XPath(AppElements.Xpath[AppReference.Related.CommandBarSubButton].Replace("[NAME]", button)));
             }).Value;
         }
+
+        internal bool HaveANextPage(int thinkTime = Constants.DefaultThinkTime)
+        {
+            Client.ThinkTime(thinkTime);
+
+            return this.Client.Execute(Client.GetOptions($"Check if next page exist"), driver =>
+            {
+                var element = driver.FindElement(GridElementsLocators.NextPage);
+
+                return element is null;
+            });
+        }
     }
-    }
+}

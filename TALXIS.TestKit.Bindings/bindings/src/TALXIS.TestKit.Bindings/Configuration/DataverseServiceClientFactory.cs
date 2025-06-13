@@ -7,20 +7,25 @@ namespace TALXIS.TestKit.Bindings.Configuration
 {
     public static class DataverseServiceClientFactory
     {
-        public static ServiceClient CreateWithToken(string dataverseUrl,string accessToken)
-        {
-            return new ServiceClient(
-                new Uri(dataverseUrl),
-                (authority) => Task.FromResult(accessToken),
-                true,
-                null);
-        }
+
+        public static ServiceClient ServiceClient { get; private set; }
 
         public static ServiceClient CreateWithClientCredentials(string dataverseUrl, ClientCredentials credentials)
         {
             string connectionString = $"AuthType=ClientSecret;Url={ExtractBaseUrl(dataverseUrl)};ClientId={credentials.ClientId};ClientSecret={credentials.ClientSecret};TenantId={credentials.TenantId};";
 
             return new ServiceClient(dataverseConnectionString: connectionString);
+        }
+
+        public static ServiceClient CreateWithToken(string dataverseUrl, string accessToken)
+        {
+            ServiceClient = new ServiceClient(
+                new Uri(dataverseUrl),
+                (authority) => Task.FromResult(accessToken),
+                true,
+                null);
+
+            return ServiceClient;
         }
 
         public static string ExtractBaseUrl(string fullUrl)

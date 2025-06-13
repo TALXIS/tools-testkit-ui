@@ -59,6 +59,14 @@
             }
         }
 
+        internal static string DataverseUrl
+        {
+            get
+            {
+                return TestConfig.Url;
+            }
+        }
+
         /// <summary>
         /// Gets the configuration for the test project.
         /// </summary>

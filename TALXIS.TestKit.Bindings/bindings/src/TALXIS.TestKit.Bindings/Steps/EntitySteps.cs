@@ -15,6 +15,9 @@
     using TALXIS.TestKit.Selectors.DTO;
     using TALXIS.TestKit.Selectors.Browser;
     using static System.Net.Mime.MediaTypeNames;
+    using System.Collections.Generic;
+    using TALXIS.TestKit.Bindings.Configuration;
+    using static TALXIS.TestKit.Selectors.AppReference;
 
     /// <summary>
     /// Step bindings related to forms.
@@ -550,6 +553,65 @@
         public static void ThenTheActiveTabShouldBe(string expectedTabLabel)
         {
             XrmApp.Entity.GetAttributeOfActiveTab("aria-label").Should().Be(expectedTabLabel);
+        }
+
+
+        /// <summary>
+        /// Asserts that a record exists in the first subgrid on the page matching all specified column values.
+        /// </summary>
+        /// <param name="columnValues">A table defining column names and their expected values.</param>
+        [Then(@"the subgrid should display a record where columns are set as follows:")]
+        public static void ThenTheFirsSubgridShouldDisplayRecordWithColumnValues(Table columnValues)
+        {
+            ThenTheThatSubgridShouldDisplayRecordWithColumnValues(columnValues);
+        }
+
+        /// <summary>
+        /// Asserts that a record exists in the first subgrid on the page matching all specified column values.
+        /// </summary>
+        /// <param name="columnValues">A table defining column names and their expected values.</param>
+        /// <param name="subgridName">The name of the section.</param>
+        [Then(@"the subgrid '(.*)' should display a record where columns are set as follows:")]
+        public static void ThenTheThatSubgridShouldDisplayRecordWithColumnValues(Table columnValues, string subgridName = null)
+        {
+            if (columnValues == null || !columnValues.Rows.Any())
+            {
+                throw new ArgumentNullException(nameof(columnValues), "Column values table cannot be null or empty.");
+            }
+
+            if (subgridName == null)
+            {
+                subgridName = MetadataHelper.GetFirstSubgridName();
+            }
+
+            var attributeLabels = MetadataHelper.GetAttributeLabels(
+                DataverseServiceClientFactory.ServiceClient,
+                subgridName);
+
+            var criteria = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (DataTableRow row in columnValues.Rows)
+            {
+                string columnName = attributeLabels[row["Column"]];
+
+                criteria.Add(columnName, row["Value"]);
+            }
+
+            var datafromFirstSubgrid = XrmApp.Entity.SubGrid.GetDatafromSubgrid();
+
+            bool isSubgridContainsTheValues = false;
+
+            foreach (Dictionary<string, string> row in datafromFirstSubgrid)
+            {
+                isSubgridContainsTheValues = criteria.Keys.All(key => row.ContainsKey(key) && criteria[key] == row[key]);
+
+                if (isSubgridContainsTheValues)
+                {
+                    break;
+                }
+            }
+
+            isSubgridContainsTheValues.Should().Be(true);
         }
 
         private static bool IsSectionVisible(string sectionName)

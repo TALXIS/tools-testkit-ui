@@ -60,6 +60,16 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
             });
         }
 
+        internal BrowserCommandResult<bool> CompareAllertDialog(string expectedMessage)
+        {
+            return Client.Execute<bool>(Client.GetOptions("Compare Alert Dialog Message Text"), driver =>
+            {
+                string massasge = driver.FindElement(By.XPath("//span[@id='dialogMessageText_3']")).Text;
+
+                return expectedMessage == massasge;
+            });
+        }
+
         internal BrowserCommandResult<bool> CloseWarningDialog()
         {
             return Client.Execute(Client.GetOptions($"Close Warning Dialog"), driver =>

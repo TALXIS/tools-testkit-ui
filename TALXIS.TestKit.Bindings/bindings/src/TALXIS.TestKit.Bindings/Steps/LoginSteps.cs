@@ -7,6 +7,7 @@
     using TALXIS.TestKit.Selectors.Browser;
     using TALXIS.TestKit.Bindings.Configuration;
     using TALXIS.TestKit.Bindings.Extensions.CookiesManagement;
+    using Microsoft.PowerPlatform.Dataverse.Client;
 
     /// <summary>
     /// Step bindings related to logging in.
@@ -32,10 +33,7 @@
                     TestConfig.Url,
                     TestConfig.ApplicationUser));
             */
-            var roleAssignmentService = new RoleAssignmentService(
-               DataverseServiceClientFactory.CreateWithToken(
-                   TestConfig.Url,
-                   AccessToken));
+            var roleAssignmentService = new RoleAssignmentService(DataverseServiceClientFactory.CreateWithToken(DataverseUrl,AccessToken));
 
             roleAssignmentService.UpdateSecurityRoles(user.Username, user.SecurityRoles);
 

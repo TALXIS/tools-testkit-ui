@@ -27,6 +27,7 @@ namespace TALXIS.TestKit.Selectors
         {
             return _gridManager.GetSubGridControl(subGridName);
         }
+
         /// <summary>
         /// Clicks a button in the subgrid menu
         /// </summary>
@@ -35,6 +36,35 @@ namespace TALXIS.TestKit.Selectors
         public void ClickCommand(string subGridName, string name, string subName = null, string subSecondName = null)
         {
             _gridManager.ClickSubGridCommand(subGridName, name, subName, subSecondName);
+        }
+
+        /// <summary>
+        /// Clicks a next button in the subgrid
+        /// </summary>
+        public bool TryClickOnTheNetxPage()
+        {
+            return _gridManager.NextPage();
+        }
+
+        public List<Dictionary<string, string>> GetDatafromSubgrid(string subgridName = null)
+        {
+            return _gridManager.GetDatafromSubgrid(subgridName);
+        }
+
+        /// <summary>
+        /// Clicks a next button in the subgrid
+        /// </summary>
+        public bool HaveANextPage()
+        {
+            return _gridManager.HaveANextPage();
+        }
+
+        /// <summary>
+        /// Get SubGrid Names
+        /// </summary>
+        public List<string> GetSubGridNames()
+        {
+            return _gridManager.GetSubGridNames();
         }
 
         /// <summary>
@@ -102,4 +132,3 @@ namespace TALXIS.TestKit.Selectors
         }
     }
 }
-            

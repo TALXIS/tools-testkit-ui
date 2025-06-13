@@ -103,5 +103,15 @@
 
             dialogText.Should().Be(expectedTitle);
         }
+
+        /// <summary>
+        /// Check if an alert dialog with specified text is displayed.
+        /// </summary>
+        /// <param name="expectedText">The text of the alert dialog that is expected.</param>
+        [Then(@"an alert dialog should be displayed with the text '(.*)'")]
+        public static void ThenAnAlertDialogShouldBeDisplayedWithTheText(string expectedText)
+        {
+            XrmApp.Dialogs.CompareAllertDialog(expectedText).Should().BeTrue();
+        }
     }
 }
