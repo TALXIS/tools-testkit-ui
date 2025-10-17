@@ -10,6 +10,7 @@ using TALXIS.TestKit.Selectors.DTO;
 using TALXIS.TestKit.Selectors.WebClientManagement;
 using TALXIS.TestKit.Selectors.WebClientManagement.Helpers;
 using TALXIS.TestKit.Selectors.Browser;
+using System.IO;
 
 namespace TALXIS.TestKit.Selectors
 {
@@ -524,6 +525,8 @@ namespace TALXIS.TestKit.Selectors
         /// <param name="value">The value</param>
         public void SetValue(string field, string value)
         {
+            File.AppendAllText("thx.txt", $"SetValue" + Environment.NewLine);
+
             SetValueHelper.SetTextFieldValue(_entityManager.Client, field, value, FormContextType.Entity);
         }
 

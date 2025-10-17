@@ -8,6 +8,8 @@ using TALXIS.TestKit.Selectors.DTO;
 using TALXIS.TestKit.Selectors.DTO.Locators;
 using TALXIS.TestKit.Selectors.Browser;
 using TALXIS.TestKit.Selectors.Extentions;
+using Microsoft.VisualBasic.FileIO;
+using System.IO;
 
 namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
 {
@@ -178,6 +180,8 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
         {
             return client.Execute(client.GetOptions("Set Value"), driver =>
             {
+                File.AppendAllText("thx.txt", $"SetTextFieldValue");
+
                 IWebElement fieldContainer = null;
 
                 if (string.IsNullOrEmpty(field))
@@ -198,10 +202,15 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
                 }
                 else
                 {
+
+                    File.AppendAllText("thx.txt", $"if (IsPCFField(fieldContainer) else");
+
                     IWebElement input;
 
                     bool found = fieldContainer.TryFindElement(By.TagName("input"), out input) ||
                                  fieldContainer.TryFindElement(By.TagName("textarea"), out input);
+                    File.AppendAllText("thx.txt", $"found:{found}");
+
 
                     if (!found)
                     {
@@ -213,6 +222,8 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
                         }
                         throw new NoSuchElementException($"Field with name '{field}' or index {fieldIndex} does not exist.");
                     }
+
+                    File.AppendAllText("thx.txt", $"found:{found}");
 
                     SetInputValue(client, driver, input, value);
                 }

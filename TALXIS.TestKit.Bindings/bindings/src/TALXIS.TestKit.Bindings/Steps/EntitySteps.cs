@@ -72,6 +72,8 @@
             string fieldType = MetadataHelper.GetFieldTypeFromDomByLogicalName(fieldLogicalName);
             string fieldLocation = MetadataHelper.GetFieldLocationFromDomByLogicalName(fieldLogicalName);
 
+            File.AppendAllText("thx.txt", $"fieldLogicalName:{fieldLogicalName} || fieldType:{fieldType} || fieldLocation:{fieldLocation}" + Environment.NewLine);
+
             if (fieldLocation == "field")
             {
                 SetFieldValue(fieldLogicalName, fieldValue.ReplaceTemplatedText(), fieldType);
@@ -80,7 +82,7 @@
             {
                 SetHeaderFieldValue(fieldLabel, fieldValue.ReplaceTemplatedText(), fieldType);
             }
-
+            
             Client.TryLoseFocus();
 
             Driver.WaitForTransaction();
@@ -90,7 +92,7 @@
         /// Sets the values of the fields in the table on the form.
         /// </summary>
         /// <param name="fields">The fields to set.</param>
-        [When(@"I enter the following into the form")]
+        [When(@"I enter the following into the form1")]
         public static void WhenIEnterTheFollowingIntoTheForm(Table fields)
         {
             fields = fields ?? throw new ArgumentNullException(nameof(fields));
@@ -640,6 +642,9 @@
 
         private static void SetFieldValue(string fieldName, string fieldValue, string fieldType)
         {
+
+            File.AppendAllText("thx.txt", $"SetFieldValue" + Environment.NewLine);
+
             switch (fieldType)
             {
                 case "multioptionset":
@@ -689,7 +694,9 @@
                 case "numeric":
                 case "text":
                 default:
-                    XrmApp.Entity.SetValue(fieldName, fieldValue);
+                    {
+                        XrmApp.Entity.SetValue(fieldName, fieldValue);
+                    }
                     break;
             }
         }

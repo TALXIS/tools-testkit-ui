@@ -3,7 +3,11 @@
     using FluentAssertions;
     using OpenQA.Selenium;
     using Reqnroll;
+    using System;
+    using System.IO;
+    using TALXIS.TestKit.Bindings.Extensions;
     using TALXIS.TestKit.Selectors;
+    using TALXIS.TestKit.Selectors.Browser;
 
     /// <summary>
     /// Step bindings related to dialogs.
@@ -112,6 +116,58 @@
         public static void ThenAnAlertDialogShouldBeDisplayedWithTheText(string expectedText)
         {
             XrmApp.Dialogs.CompareAllertDialog(expectedText).Should().BeTrue();
+        }
+
+        /// <summary>
+        /// Sets the value for the field.
+        /// </summary>
+        /// <param name="fieldValue">The field value.</param>
+        /// <param name="fieldLabel">The field name.</param>
+        [When(@"I enter '(.*)' into the '(.*)' field in the dialog form")]
+        public static void WhenIEnterInTheField(string fieldValue, string fieldLabel)
+        {
+            Driver.WaitForPageToLoad();
+
+            string fieldLogicalName = XrmApp.Entity.GetFieldLogicalNameFromLabel(Driver, fieldLabel);
+
+            string fieldType = MetadataHelper.GetFieldTypeFromDomByLogicalName(fieldLogicalName);
+            string fieldLocation = MetadataHelper.GetFieldLocationFromDomByLogicalName(fieldLogicalName);
+            File.AppendAllText("thx.txt", $"fieldLogicalName:{fieldLogicalName} || fieldType:{fieldType} || fieldLocation:{fieldLocation}");
+
+
+            if (fieldLocation == "field")
+            {
+                //SetFieldValue(fieldLogicalName, fieldValue.ReplaceTemplatedText(), fieldType);
+            }
+            else
+            {
+                //SetHeaderFieldValue(fieldLabel, fieldValue.ReplaceTemplatedText(), fieldType);
+            }
+
+            Client.TryLoseFocus();
+
+            Driver.WaitForTransaction();
+        }
+
+        /// <summary>
+        /// Sets the values of the fields in the table on the form.
+        /// </summary>
+        /// <param name="fields">The fields to set.</param>
+        [When(@"I enter the following into the dialog form")]
+        public static void WhenIEnterTheFollowingIntoTheForm(Table fields)
+        {
+            fields = fields ?? throw new ArgumentNullException(nameof(fields));
+
+            foreach (DataTableRow row in fields.Rows)
+            {
+                WhenIEnterInTheField(row["Value"], row["Field"]);
+            }
+        }
+
+        [When(@"I click on '(.*)' button in dialog")]
+        public static void ClickButtonInDialogWindow(string buttonLabel)
+        {
+            XrmApp.Dialogs.SelectButtonInDialogWindow(buttonLabel);
         }
     }
 }
