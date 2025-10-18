@@ -226,7 +226,9 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
             return GetCommandNames(commandBarItems.Values);
         }
 
-
-
+        internal void CallOnSave()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

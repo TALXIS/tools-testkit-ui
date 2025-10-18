@@ -4,10 +4,13 @@
     using OpenQA.Selenium;
     using Reqnroll;
     using System;
+    using System.Globalization;
     using System.IO;
+    using System.Linq;
     using TALXIS.TestKit.Bindings.Extensions;
     using TALXIS.TestKit.Selectors;
     using TALXIS.TestKit.Selectors.Browser;
+    using TALXIS.TestKit.Selectors.DTO;
 
     /// <summary>
     /// Step bindings related to dialogs.
@@ -132,22 +135,24 @@
 
             string fieldType = MetadataHelper.GetFieldTypeFromDomByLogicalName(fieldLogicalName);
             string fieldLocation = MetadataHelper.GetFieldLocationFromDomByLogicalName(fieldLogicalName);
-            File.AppendAllText("thx.txt", $"fieldLogicalName:{fieldLogicalName} || fieldType:{fieldType} || fieldLocation:{fieldLocation}");
+            File.AppendAllText("thx.txt", $"fieldLogicalName:{fieldLogicalName} || fieldType:{fieldType} || fieldLocation:{fieldLocation} || fieldValue.ReplaceTemplatedText():{fieldValue.ReplaceTemplatedText()}");
 
 
             if (fieldLocation == "field")
             {
-                //SetFieldValue(fieldLogicalName, fieldValue.ReplaceTemplatedText(), fieldType);
+                SetValueToFieldInDialogForm(fieldLogicalName, fieldValue.ReplaceTemplatedText(), fieldType);
             }
             else
             {
-                //SetHeaderFieldValue(fieldLabel, fieldValue.ReplaceTemplatedText(), fieldType);
+                throw new Exception("Unknone field location");
             }
 
             Client.TryLoseFocus();
 
             Driver.WaitForTransaction();
         }
+
+
 
         /// <summary>
         /// Sets the values of the fields in the table on the form.
@@ -168,6 +173,74 @@
         public static void ClickButtonInDialogWindow(string buttonLabel)
         {
             XrmApp.Dialogs.SelectButtonInDialogWindow(buttonLabel);
+
+            if (buttonLabel.ToLower().Contains("save"))
+            {
+                XrmApp.CommandBar.CallOnSave();
+            }
+        }
+
+        private static void SetValueToFieldInDialogForm(string fieldName, string fieldValue, string fieldType)
+        {
+
+            File.AppendAllText("thx.txt", $"SetFieldValue" + Environment.NewLine);
+
+            switch (fieldType)
+            {
+                case "multioptionset":
+                    XrmApp.Entity.SetValue(
+                        new MultiValueOptionSet()
+                        {
+                            Name = fieldName,
+                            Values = fieldValue
+                                        .Split(',')
+                                        .Select(v => v.Trim())
+                                        .ToArray(),
+                        },
+                        true);
+                    break;
+                case "optionset":
+                    bool isNewLookEnabled = AppLookExtensions.IsNewLookEnabled(Driver);
+
+                    XrmApp.Entity.SetValue(new OptionSet()
+                    {
+                        Name = fieldName,
+                        Value = fieldValue,
+                    },
+                    FormContextType.Dialog);
+                    break;
+                case "boolean":
+                    XrmApp.Entity.SetValue(new BooleanItem()
+                    {
+                        Name = fieldName,
+                        Value = bool.Parse(fieldValue),
+                    });
+                    break;
+                case "datetime":
+                    XrmApp.Entity.SetValue(new DateTimeControl(fieldName)
+                    {
+                        // !TO-DO: Datetime formattings
+                        Value = DateTime.Parse(fieldValue, CultureInfo.CurrentCulture),
+                    });
+                    break;
+                case "lookup":
+                    XrmApp.Entity.SetValue(new LookupItem()
+                    {
+                        Name = fieldName,
+                        Value = fieldValue,
+                    },
+                    FormContextType.Dialog);
+                    break;
+                case "currency":
+                case "numeric":
+                case "text":
+                default:
+                    {
+                        //XrmApp.Dialogs.SetValueToDialogForm(fieldName, fieldValue);
+                        XrmApp.Entity.SetValue(fieldName, fieldValue, FormContextType.Dialog);
+                    }
+                    break;
+            }
         }
     }
 }

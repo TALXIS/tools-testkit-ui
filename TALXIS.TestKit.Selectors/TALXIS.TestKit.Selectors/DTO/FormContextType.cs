@@ -6,6 +6,7 @@
         BusinessProcessFlow,
         QuickCreate,
         Header,
-        Dialog
+        Dialog,
+        DialogForm
     }
 }

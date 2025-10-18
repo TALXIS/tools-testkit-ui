@@ -16,6 +16,28 @@ namespace TALXIS.TestKit.Bindings.Extensions
 {
     internal class MetadataHelper : PowerAppsStepDefiner
     {
+
+        public static IWebElement FindFieldByLogicalName( string logicalName)
+        {
+            if (string.IsNullOrWhiteSpace(logicalName))
+                throw new ArgumentNullException(nameof(logicalName));
+
+            IWebElement root = null;
+            try
+            {
+                root = Driver.FindElement(By.CssSelector("div[role='dialog']"));
+            }
+            catch (NoSuchElementException)
+            {
+                root = Driver.FindElement(By.TagName("body"));
+            }
+
+            var selector = $"[data-id='{logicalName}.fieldControl'], [data-id='{logicalName}']";
+            var element = root.FindElement(By.CssSelector(selector));
+
+            return element;
+        }
+
         /// <summary>
         /// Gets the field type from the DOM using a JavaScript query.
         /// </summary>
