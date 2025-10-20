@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using TALXIS.TestKit.Selectors.WebClientManagement;
 using TALXIS.TestKit.Selectors.Browser;
+using System;
 
 namespace TALXIS.TestKit.Selectors
 {
@@ -13,6 +14,11 @@ namespace TALXIS.TestKit.Selectors
         public CommandBar(WebClient client) : base()
         {
             _manger = new CommandBarManager(client);
+        }
+
+        public void CallOnSave()
+        {
+            _manger.CallOnSave();
         }
 
         /// <summary>

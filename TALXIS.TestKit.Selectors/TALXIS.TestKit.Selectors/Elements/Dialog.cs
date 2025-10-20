@@ -6,6 +6,7 @@ using TALXIS.TestKit.Selectors.DTO;
 using TALXIS.TestKit.Selectors.WebClientManagement;
 using TALXIS.TestKit.Selectors.WebClientManagement.Helpers;
 using TALXIS.TestKit.Selectors.Browser;
+using System.IO;
 
 namespace TALXIS.TestKit.Selectors
 {
@@ -37,6 +38,11 @@ namespace TALXIS.TestKit.Selectors
         public string GetAlertDialogMessageText()
         {
             return _dialogsManager.GetAlertDialogMessageText();
+        }
+
+        public bool CompareAllertDialog(string expecredMassage)
+        {
+            return _dialogsManager.CompareAllertDialog(expecredMassage);
         }
 
         public bool IsDialogVisible()
@@ -142,6 +148,8 @@ namespace TALXIS.TestKit.Selectors
         }
 
 
+
+
         /// <summary>
         /// Gets the value of a Lookup.
         /// </summary>
@@ -212,6 +220,31 @@ namespace TALXIS.TestKit.Selectors
         /// <summary>
         /// Sets the value of a field
         /// </summary>
+        /// <param name="fieldLogicalName">The field</param>
+        /// <param name="value">The value</param>
+        public void SetValueToDialogForm(string fieldLogicalName, string value)
+        {
+            File.AppendAllText("thx.txt", $"SetValueInDialog" + Environment.NewLine);
+
+            _dialogsManager.SetValueToDialogForm(fieldLogicalName, value);
+        }
+
+        public void SetNumericValueToDialogForm(string fieldLogicalName, string value)
+        {
+            File.AppendAllText("thx.txt", $"SetValueInDialog" + Environment.NewLine);
+
+            _dialogsManager.SetValueToDialogForm(fieldLogicalName, value);
+        }
+
+        public void SetLookupValueToDialogForm(string fieldLogicalName, string value)
+        {
+
+            _dialogsManager.SetLookupValueToDialogForm(fieldLogicalName, value);
+        }
+
+        /// <summary>
+        /// Sets the value of a field
+        /// </summary>
         /// <param name="field">The field</param>
         /// <param name="value">The value</param>
         public void SetValue(string field, string value)
@@ -244,7 +277,7 @@ namespace TALXIS.TestKit.Selectors
         /// <param name="option">The option you want to set.</param>
         public void SetValue(OptionSet optionSet)
         {
-            SetValueHelper.SetOptionSetValue(_entityManager.Client,optionSet, FormContextType.Dialog);
+            SetValueHelper.SetOptionSetValue(_entityManager.Client, optionSet, FormContextType.Dialog);
         }
 
         /// <summary>

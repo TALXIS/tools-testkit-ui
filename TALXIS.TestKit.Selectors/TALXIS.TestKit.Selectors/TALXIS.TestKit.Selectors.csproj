@@ -26,12 +26,13 @@
     <PackageReference Include="System.Text.Encodings.Web" Version="8.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters" Version="1.3.0" />
+    <PackageReference Include="TALXIS.TestKit.Selectors.Browser" Version="1.0.3" />
   </ItemGroup>
+	<PropertyGroup>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
   <ItemGroup>
     <Compile Remove="Controls\CrmControls.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TALXIS.TestKit.Selectors.Api.Browser\TALXIS.TestKit.Selectors.Browser.csproj" />
   </ItemGroup>
 	<PropertyGroup>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>

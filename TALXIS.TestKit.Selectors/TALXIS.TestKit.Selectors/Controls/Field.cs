@@ -24,7 +24,6 @@ namespace TALXIS.TestKit.Selectors
 
         }
 
-
         internal IWebElement _inputElement { get; set; }
 
         //Element that contains the container for the field on the form

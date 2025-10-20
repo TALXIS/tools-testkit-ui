@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using Microsoft.VisualBasic.FileIO;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
+using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using TALXIS.TestKit.Selectors.Browser;
 using TALXIS.TestKit.Selectors.DTO;
 using TALXIS.TestKit.Selectors.DTO.Locators;
-using TALXIS.TestKit.Selectors.Browser;
 using TALXIS.TestKit.Selectors.Extentions;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
 {
@@ -160,6 +164,11 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
                         .LastOrDefault() ?? throw new NotFoundException("Unable to find a dialog.");
                     fieldContainer = dialogContext.WaitUntilAvailable(EntityElementsLocators.TextFieldContainer(field));
                     break;
+                case FormContextType.DialogForm:
+                    File.AppendAllText("thx.txt", $"DialogForm " + Environment.NewLine);
+
+                    fieldContainer = driver.FindElement(By.CssSelector($"[data-id='{field}.fieldControl-decimal-number-text-input']"));
+                    break; 
                 default:
                     throw new ArgumentException("Invalid form context type", nameof(formContextType));
             }
@@ -174,10 +183,12 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
         /// <param name="field">The field</param>
         /// <param name="value">The value</param>
         /// <example>xrmApp.Entity.SetValue("firstname", "Test");</example>
-        internal static BrowserCommandResult<bool> SetTextFieldValue(WebClient client, string field = null,  string value = null, FormContextType formContextType = FormContextType.Entity, string label = null, int fieldIndex = 0 )
+        internal static BrowserCommandResult<bool> SetTextFieldValue(WebClient client, string field = null, string value = null, FormContextType formContextType = FormContextType.Entity, string label = null, int fieldIndex = 0)
         {
             return client.Execute(client.GetOptions("Set Value"), driver =>
             {
+                File.AppendAllText("thx.txt", $"SetTextFieldValue" + Environment.NewLine);
+
                 IWebElement fieldContainer = null;
 
                 if (string.IsNullOrEmpty(field))
@@ -186,8 +197,26 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
                 }
                 else
                 {
+                    File.AppendAllText("thx.txt", $"Before ValidateFormContext " + Environment.NewLine);
                     fieldContainer = ValidateFormContext(client, driver, formContextType, field, fieldContainer);
+                    /*
+                    var input = fieldContainer.FindElement(By.XPath(".//input | .//*[@role='textbox']"));
+                    File.AppendAllText("thx.txt", $"input:{input} " + Environment.NewLine);
+
+                    input.Click();
+                    input.Clear();
+                    input.SendKeys("Test value");
+                    input.SendKeys(Keys.Tab);
+                    input.SendKeys(Keys.Enter);
+
+                    File.AppendAllText("thx.txt", $"input.SendKeys(Keys.Tab)" + Environment.NewLine);
+
+                    return true;
+
+                    File.AppendAllText("thx.txt", $"fieldContainer:{fieldContainer} " + Environment.NewLine);
+                    */
                 }
+
 
                 if (fieldContainer == null)
                     throw new NoSuchElementException($"Field container not found for label '{label}', index {fieldIndex}, or name '{field}'.");
@@ -198,10 +227,26 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
                 }
                 else
                 {
+
+                    File.AppendAllText("thx.txt", $"if (IsPCFField(fieldContainer) else" +Environment.NewLine);
+
                     IWebElement input;
 
-                    bool found = fieldContainer.TryFindElement(By.TagName("input"), out input) ||
-                                 fieldContainer.TryFindElement(By.TagName("textarea"), out input);
+                    bool found =
+                        fieldContainer.TryFindElement(By.CssSelector("input"), out input) ||
+                        fieldContainer.TryFindElement(By.CssSelector("textarea"), out input);
+
+                    if (!found)
+                        found = fieldContainer.TryFindElement(By.CssSelector("[contenteditable='true']"), out input);
+
+                    if (!found)
+                        found = fieldContainer.TryFindElement(By.CssSelector("[role='textbox']"), out input);
+
+                    if (!found)
+                        found = fieldContainer.TryFindElement(By.CssSelector(".wj-input, .pa-input, .input-field"), out input);
+
+                    File.AppendAllText("thx.txt", $"found:{found}");
+
 
                     if (!found)
                     {
@@ -213,6 +258,8 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
                         }
                         throw new NoSuchElementException($"Field with name '{field}' or index {fieldIndex} does not exist.");
                     }
+
+                    File.AppendAllText("thx.txt", $"found:{found}");
 
                     SetInputValue(client, driver, input, value);
                 }
@@ -785,19 +832,19 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
                 bool success = bool.TryParse(strExpanded, out var isCalendarExpanded);
                 if (success && isCalendarExpanded)
 
-                driver.RepeatUntil(() =>
-                {
-                    ClearFieldValue(client, dateField);
-                    if (date != null)
+                    driver.RepeatUntil(() =>
                     {
-                        dateField.SendKeys(date);
-                        dateField.SendKeys(Keys.Tab);
-                    }
-                },
-                d => dateField.GetAttribute("value").IsValueEqualsTo(date),
-                TimeSpan.FromSeconds(9), 3,
-                failureCallback: () => throw new InvalidOperationException($"Timeout after 10 seconds. Expected: {date}. Actual: {dateField.GetAttribute("value")}")
-                );
+                        ClearFieldValue(client, dateField);
+                        if (date != null)
+                        {
+                            dateField.SendKeys(date);
+                            dateField.SendKeys(Keys.Tab);
+                        }
+                    },
+                    d => dateField.GetAttribute("value").IsValueEqualsTo(date),
+                    TimeSpan.FromSeconds(9), 3,
+                    failureCallback: () => throw new InvalidOperationException($"Timeout after 10 seconds. Expected: {date}. Actual: {dateField.GetAttribute("value")}")
+                    );
             }
             else
             {
@@ -877,6 +924,53 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
             {
                 TrySetTime(client, driver, timeField, control.TimeAsString);
             }
+        }
+
+        private static IWebElement FindDialogFieldContainer(IWebDriver driver, string logicalName, TimeSpan timeout)
+        {
+            var end = DateTime.UtcNow + timeout;
+            var selector = $"[data-id='{logicalName}.fieldControl'], [data-id='{logicalName}']";
+
+            while (DateTime.UtcNow < end)
+            {
+                var dialogs = driver.FindElements(By.CssSelector("div[role='dialog']"))
+                                    .Where(d => d.Displayed).ToList();
+                if (dialogs.Count > 0)
+                {
+                    var dlg = dialogs.Last();
+                    var inDlg = dlg.FindElements(By.CssSelector(selector)).FirstOrDefault();
+                    if (inDlg != null) return inDlg;
+                }
+
+                var anyDialogs = driver.FindElements(By.CssSelector(".ms-Dialog-main, .ui-dialog, .crmDialog, .dialog-container"))
+                                       .Where(d => d.Displayed).ToList();
+                foreach (var dlg in anyDialogs)
+                {
+                    var inDlg = dlg.FindElements(By.CssSelector(selector)).FirstOrDefault();
+                    if (inDlg != null) return inDlg;
+                }
+
+                var frames = driver.FindElements(By.CssSelector("iframe, frame")).ToList();
+                foreach (var fr in frames)
+                {
+                    try
+                    {
+                        driver.SwitchTo().Frame(fr);
+                        var inFrame = driver.FindElements(By.CssSelector(selector)).FirstOrDefault();
+                        if (inFrame != null) return inFrame; 
+                    }
+                    catch { /* ignore frame */ }
+                    finally
+                    {
+                        
+                        if (driver.Url != null && driver.FindElements(By.CssSelector(selector)).Count == 0)
+                            driver.SwitchTo().DefaultContent();
+                    }
+                }
+
+                System.Threading.Thread.Sleep(150);
+            }
+            return null;
         }
 
         private static void TrySetTime(WebClient client, IWebDriver driver, IWebElement timeField, string time)

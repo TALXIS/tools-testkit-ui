@@ -10,6 +10,7 @@ using TALXIS.TestKit.Selectors.DTO;
 using TALXIS.TestKit.Selectors.WebClientManagement;
 using TALXIS.TestKit.Selectors.WebClientManagement.Helpers;
 using TALXIS.TestKit.Selectors.Browser;
+using System.IO;
 
 namespace TALXIS.TestKit.Selectors
 {
@@ -437,9 +438,6 @@ namespace TALXIS.TestKit.Selectors
             _timelineManager.SelectTab(tabName, subTabName);
         }
 
-        
-
-
         public void SetHeaderValue(string field, string value)
         {
             _entityManager.SetHeaderValue(field, value);
@@ -525,18 +523,18 @@ namespace TALXIS.TestKit.Selectors
         /// </summary>
         /// <param name="field">The field</param>
         /// <param name="value">The value</param>
-        public void SetValue(string field, string value)
+        public void SetValue(string field, string value, FormContextType formContextType = FormContextType.Entity)
         {
-            SetValueHelper.SetTextFieldValue(_entityManager.Client, field, value, FormContextType.Entity);
+            SetValueHelper.SetTextFieldValue(_entityManager.Client, field, value, formContextType);
         }
 
         /// <summary>
         /// Sets the value of a Lookup.
         /// </summary>
         /// <param name="control">The lookup field name, value or index of the lookup.</param>
-        public void SetValue(LookupItem control)
+        public void SetValue(LookupItem control, FormContextType formContextType = FormContextType.Entity)
         {
-            SetValueHelper.SetLookUp(_entityManager.Client, control, FormContextType.Entity);
+            SetValueHelper.SetLookUp(_entityManager.Client, control, formContextType);
         }
 
         /// <summary>
@@ -553,9 +551,9 @@ namespace TALXIS.TestKit.Selectors
         /// Sets the value of a picklist or status field.
         /// </summary>
         /// <param name="option">The option you want to set.</param>
-        public void SetValue(OptionSet optionSet)
+        public void SetValue(OptionSet optionSet, FormContextType formContextType = FormContextType.Entity)
         {
-            SetValueHelper.SetOptionSetValue(_entityManager.Client, optionSet, FormContextType.Entity);
+            SetValueHelper.SetOptionSetValue(_entityManager.Client, optionSet, formContextType);
         }
 
         /// <summary>

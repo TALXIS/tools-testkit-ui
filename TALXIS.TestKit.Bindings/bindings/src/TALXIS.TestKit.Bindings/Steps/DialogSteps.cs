@@ -3,7 +3,14 @@
     using FluentAssertions;
     using OpenQA.Selenium;
     using Reqnroll;
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using TALXIS.TestKit.Bindings.Extensions;
     using TALXIS.TestKit.Selectors;
+    using TALXIS.TestKit.Selectors.Browser;
+    using TALXIS.TestKit.Selectors.DTO;
 
     /// <summary>
     /// Step bindings related to dialogs.
@@ -102,6 +109,138 @@
             var dialogText = XrmApp.Dialogs.GetAlertDialogMessageText();
 
             dialogText.Should().Be(expectedTitle);
+        }
+
+        /// <summary>
+        /// Check if an alert dialog with specified text is displayed.
+        /// </summary>
+        /// <param name="expectedText">The text of the alert dialog that is expected.</param>
+        [Then(@"an alert dialog should be displayed with the text '(.*)'")]
+        public static void ThenAnAlertDialogShouldBeDisplayedWithTheText(string expectedText)
+        {
+            XrmApp.Dialogs.CompareAllertDialog(expectedText).Should().BeTrue();
+        }
+
+        /// <summary>
+        /// Sets the value for the field.
+        /// </summary>
+        /// <param name="fieldValue">The field value.</param>
+        /// <param name="fieldLabel">The field name.</param>
+        [When(@"I enter '(.*)' into the '(.*)' field in the dialog form")]
+        public static void WhenIEnterInTheField(string fieldValue, string fieldLabel)
+        {
+            Driver.WaitForPageToLoad();
+
+            string fieldLogicalName = XrmApp.Entity.GetFieldLogicalNameFromLabel(Driver, fieldLabel);
+
+            string fieldType = MetadataHelper.GetFieldTypeFromDomByLogicalName(fieldLogicalName);
+            string fieldLocation = MetadataHelper.GetFieldLocationFromDomByLogicalName(fieldLogicalName);
+            File.AppendAllText("thx.txt", $"fieldLogicalName:{fieldLogicalName} || fieldType:{fieldType} || fieldLocation:{fieldLocation} || fieldValue.ReplaceTemplatedText():{fieldValue.ReplaceTemplatedText()}");
+
+
+            if (fieldLocation == "field")
+            {
+                SetValueToFieldInDialogForm(fieldLogicalName, fieldValue.ReplaceTemplatedText(), fieldType);
+            }
+            else
+            {
+                throw new Exception("Unknone field location");
+            }
+
+            Client.TryLoseFocus();
+
+            Driver.WaitForTransaction();
+        }
+
+
+
+        /// <summary>
+        /// Sets the values of the fields in the table on the form.
+        /// </summary>
+        /// <param name="fields">The fields to set.</param>
+        [When(@"I enter the following into the dialog form")]
+        public static void WhenIEnterTheFollowingIntoTheForm(Table fields)
+        {
+            fields = fields ?? throw new ArgumentNullException(nameof(fields));
+
+            foreach (DataTableRow row in fields.Rows)
+            {
+                WhenIEnterInTheField(row["Value"], row["Field"]);
+            }
+        }
+
+        [When(@"I click on '(.*)' button in dialog")]
+        public static void ClickButtonInDialogWindow(string buttonLabel)
+        {
+            XrmApp.Dialogs.SelectButtonInDialogWindow(buttonLabel);
+
+            if (buttonLabel.ToLower().Contains("save"))
+            {
+                XrmApp.CommandBar.CallOnSave();
+            }
+        }
+
+        private static void SetValueToFieldInDialogForm(string fieldName, string fieldValue, string fieldType)
+        {
+
+            File.AppendAllText("thx.txt", $"SetFieldValue" + Environment.NewLine);
+
+            switch (fieldType)
+            {
+                case "multioptionset":
+                    XrmApp.Entity.SetValue(
+                        new MultiValueOptionSet()
+                        {
+                            Name = fieldName,
+                            Values = fieldValue
+                                        .Split(',')
+                                        .Select(v => v.Trim())
+                                        .ToArray(),
+                        },
+                        true);
+                    break;
+                case "optionset":
+                    bool isNewLookEnabled = AppLookExtensions.IsNewLookEnabled(Driver);
+
+                    XrmApp.Entity.SetValue(new OptionSet()
+                    {
+                        Name = fieldName,
+                        Value = fieldValue,
+                    },
+                    FormContextType.Dialog);
+                    break;
+                case "boolean":
+                    XrmApp.Entity.SetValue(new BooleanItem()
+                    {
+                        Name = fieldName,
+                        Value = bool.Parse(fieldValue),
+                    });
+                    break;
+                case "datetime":
+                    XrmApp.Entity.SetValue(new DateTimeControl(fieldName)
+                    {
+                        // !TO-DO: Datetime formattings
+                        Value = DateTime.Parse(fieldValue, CultureInfo.CurrentCulture),
+                    });
+                    break;
+                case "lookup":
+                    XrmApp.Entity.SetValue(new LookupItem()
+                    {
+                        Name = fieldName,
+                        Value = fieldValue,
+                    },
+                    FormContextType.Dialog);
+                    break;
+                case "currency":
+                case "numeric":
+                case "text":
+                default:
+                    {
+                        //XrmApp.Dialogs.SetValueToDialogForm(fieldName, fieldValue);
+                        XrmApp.Entity.SetValue(fieldName, fieldValue, FormContextType.Dialog);
+                    }
+                    break;
+            }
         }
     }
 }

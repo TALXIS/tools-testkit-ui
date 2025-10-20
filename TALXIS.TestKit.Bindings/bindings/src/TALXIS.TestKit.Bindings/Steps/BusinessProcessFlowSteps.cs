@@ -2,6 +2,7 @@
 {
     using System;
     using System.Globalization;
+    using System.Threading;
     using FluentAssertions;
     using OpenQA.Selenium;
     using Reqnroll;
@@ -184,6 +185,14 @@
                     XrmApp.Entity.SetValue(fieldName, fieldValue);
                     break;
             }
+        }
+
+        /// <summary>
+        /// </summary>
+        [Then(@"Wait")]
+        public static void Wait()
+        {
+            Thread.Sleep(10000);
         }
     }
 }

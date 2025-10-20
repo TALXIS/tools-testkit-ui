@@ -3,6 +3,9 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using TALXIS.TestKit.Selectors.DTO.Locators;
 using TALXIS.TestKit.Selectors.Browser;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using AngleSharp.Dom;
+using System.Xml.Linq;
 namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
 {
     internal class ActionHelper
@@ -13,6 +16,14 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
             IWebElement listItem;
             // Look for the tab in the tab list, else in the more tabs menu
             IWebElement searchScope = null;
+            IWebElement element;
+
+            if (tabList.TryFindElement(By.CssSelector($"li[title$=\"{name}\"]"), out element))
+            {
+                element.Click();
+                return;
+            }
+
             if (tabList.HasElement(By.XPath(string.Format(xpath, name))))
             {
                 searchScope = tabList;
@@ -117,8 +128,12 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
 
             return client.Execute($"Select Tab", driver =>
             {
-                driver.WaitUntilVisible(By.CssSelector($"li[title=\"{tabName}\"]"));
 
+                driver.WaitUntilVisible(By.CssSelector($"li[title$=\"{tabName}\"]"));
+
+                var element = driver.FindElement(By.CssSelector($"li[title$=\"{tabName}\"]"));
+
+                driver.Click(element);
                 IWebElement tabList;
                 if (driver.HasElement(DialogsElementsLocators.DialogContext))
                 {

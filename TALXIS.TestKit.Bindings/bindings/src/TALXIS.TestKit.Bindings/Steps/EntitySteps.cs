@@ -15,6 +15,9 @@
     using TALXIS.TestKit.Selectors.DTO;
     using TALXIS.TestKit.Selectors.Browser;
     using static System.Net.Mime.MediaTypeNames;
+    using System.Collections.Generic;
+    using TALXIS.TestKit.Bindings.Configuration;
+    using static TALXIS.TestKit.Selectors.AppReference;
 
     /// <summary>
     /// Step bindings related to forms.
@@ -69,6 +72,8 @@
             string fieldType = MetadataHelper.GetFieldTypeFromDomByLogicalName(fieldLogicalName);
             string fieldLocation = MetadataHelper.GetFieldLocationFromDomByLogicalName(fieldLogicalName);
 
+            File.AppendAllText("thx.txt", $"fieldLogicalName:{fieldLogicalName} || fieldType:{fieldType} || fieldLocation:{fieldLocation}" + Environment.NewLine);
+
             if (fieldLocation == "field")
             {
                 SetFieldValue(fieldLogicalName, fieldValue.ReplaceTemplatedText(), fieldType);
@@ -77,7 +82,7 @@
             {
                 SetHeaderFieldValue(fieldLabel, fieldValue.ReplaceTemplatedText(), fieldType);
             }
-
+            
             Client.TryLoseFocus();
 
             Driver.WaitForTransaction();
@@ -87,7 +92,7 @@
         /// Sets the values of the fields in the table on the form.
         /// </summary>
         /// <param name="fields">The fields to set.</param>
-        [When(@"I enter the following into the form")]
+        [When(@"I enter the following into the form1")]
         public static void WhenIEnterTheFollowingIntoTheForm(Table fields)
         {
             fields = fields ?? throw new ArgumentNullException(nameof(fields));
@@ -519,7 +524,7 @@
         [Then(@"^the status of the record should be (active|inactive)$")]
         public static void ThenTheStatusOfTheRecordShouldBe(string status)
         {
-            GetFormStatus().Should().BeEquivalentTo(status);
+            GetFormStatus().ToLower().Should().BeEquivalentTo(status.ToLower());
         }
 
         /// <summary>
@@ -552,6 +557,65 @@
             XrmApp.Entity.GetAttributeOfActiveTab("aria-label").Should().Be(expectedTabLabel);
         }
 
+
+        /// <summary>
+        /// Asserts that a record exists in the first subgrid on the page matching all specified column values.
+        /// </summary>
+        /// <param name="columnValues">A table defining column names and their expected values.</param>
+        [Then(@"the subgrid should display a record where columns are set as follows:")]
+        public static void ThenTheFirsSubgridShouldDisplayRecordWithColumnValues(Table columnValues)
+        {
+            ThenTheThatSubgridShouldDisplayRecordWithColumnValues(columnValues);
+        }
+
+        /// <summary>
+        /// Asserts that a record exists in the first subgrid on the page matching all specified column values.
+        /// </summary>
+        /// <param name="columnValues">A table defining column names and their expected values.</param>
+        /// <param name="subgridName">The name of the section.</param>
+        [Then(@"the subgrid '(.*)' should display a record where columns are set as follows:")]
+        public static void ThenTheThatSubgridShouldDisplayRecordWithColumnValues(Table columnValues, string subgridName = null)
+        {
+            if (columnValues == null || !columnValues.Rows.Any())
+            {
+                throw new ArgumentNullException(nameof(columnValues), "Column values table cannot be null or empty.");
+            }
+
+            if (subgridName == null)
+            {
+                subgridName = MetadataHelper.GetFirstSubgridName();
+            }
+
+            var attributeLabels = MetadataHelper.GetAttributeLabels(
+                DataverseServiceClientFactory.ServiceClient,
+                subgridName);
+
+            var criteria = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (DataTableRow row in columnValues.Rows)
+            {
+                string columnName = attributeLabels[row["Column"]];
+
+                criteria.Add(columnName, row["Value"]);
+            }
+
+            var datafromFirstSubgrid = XrmApp.Entity.SubGrid.GetDatafromSubgrid();
+
+            bool isSubgridContainsTheValues = false;
+
+            foreach (Dictionary<string, string> row in datafromFirstSubgrid)
+            {
+                isSubgridContainsTheValues = criteria.Keys.All(key => row.ContainsKey(key) && criteria[key] == row[key]);
+
+                if (isSubgridContainsTheValues)
+                {
+                    break;
+                }
+            }
+
+            isSubgridContainsTheValues.Should().Be(true);
+        }
+
         private static bool IsSectionVisible(string sectionName)
         {
             return XrmApp.Entity.IsSectionVisible(sectionName);
@@ -561,7 +625,7 @@
         {
             var result = XrmApp.Entity.GetFormStatus();
 
-            if (string.IsNullOrEmpty(result))
+            if (!string.IsNullOrWhiteSpace(result))
             {
                 return result;
             }
@@ -578,6 +642,9 @@
 
         private static void SetFieldValue(string fieldName, string fieldValue, string fieldType)
         {
+
+            File.AppendAllText("thx.txt", $"SetFieldValue" + Environment.NewLine);
+
             switch (fieldType)
             {
                 case "multioptionset":
@@ -627,7 +694,9 @@
                 case "numeric":
                 case "text":
                 default:
-                    XrmApp.Entity.SetValue(fieldName, fieldValue);
+                    {
+                        XrmApp.Entity.SetValue(fieldName, fieldValue);
+                    }
                     break;
             }
         }

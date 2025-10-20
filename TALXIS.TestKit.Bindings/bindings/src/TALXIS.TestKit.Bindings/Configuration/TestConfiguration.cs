@@ -1,27 +1,31 @@
-﻿namespace TALXIS.TestKit.Bindings.Configuration
-{
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 
+namespace TALXIS.TestKit.Bindings.Configuration
+{
     /// <summary>
     /// Test configuration for PowerApps UI testing.
     /// </summary>
     public class TestConfiguration
     {
         private readonly IConfiguration configuration;
-        private static Dictionary<string, UserConfiguration> currentUsers = new Dictionary<string, UserConfiguration>();
+        private static Dictionary<string, PersonaConfiguration> currentPersona = new Dictionary<string, PersonaConfiguration>();
 
         public TestConfiguration(IConfiguration configuration)
         {
             this.configuration = configuration;
             this.BrowserOptions = configuration.GetSection("BrowserOptions").Get<BrowserOptionsWithProfileSupport>();
-            this.Users = configuration.GetSection("Users").Get<List<UserConfiguration>>();
+            this.Personas = configuration.GetSection("Personas").Get<List<PersonaConfiguration>>();
             this.Url = configuration["Url"];
             this.UseProfiles = configuration.GetValue<bool>("UseProfiles");
             this.DeleteTestData = configuration.GetValue<bool>("DeleteTestData");
             this.ProfilesBasePath = configuration["ProfilesBasePath"];
             this.ApplicationUser = configuration.GetSection("applicationUser").Get<ClientCredentials>();
+
+            SpecifyUsersForPersonas(configuration.GetSection("Users").Get<List<UserConfiguration>>());
 
             // TODO: Make this overrideable from config
             //this.BrowserOptions.DriversPath
@@ -47,8 +51,7 @@
         /// </summary>
         public string ProfilesBasePath { get; set; }
         public BrowserOptionsWithProfileSupport BrowserOptions { get; set; }
-        public List<UserConfiguration> Users { get; set; }
-
+        public List<PersonaConfiguration> Personas { get; set; }
         public ClientCredentials ApplicationUser { get; set; }
 
 
@@ -61,20 +64,20 @@
             return new Uri(this.Url);
         }
 
-        public UserConfiguration GetUser(string userAlias, bool useCurrentUser = true)
+        public PersonaConfiguration GetPersona(string userAlias, bool useCurrentUser = true)
         {
-            if (useCurrentUser && currentUsers.ContainsKey(userAlias))
+            if (useCurrentUser && currentPersona.ContainsKey(userAlias))
             {
-                return currentUsers[userAlias];
+                return currentPersona[userAlias];
             }
 
-            var user = this.Users.Find(u => u.Alias == userAlias);
+            var user = this.Personas.Find(u => u.Alias == userAlias);
             if (user == null)
             {
                 throw new Exception("User not found");
             }
 
-            currentUsers[userAlias] = user;
+            currentPersona[userAlias] = user;
             return user;
         }
 
@@ -83,7 +86,21 @@
         /// </summary>
         internal void Flush()
         {
-            currentUsers.Clear();
+            currentPersona.Clear();
+        }
+
+        private void SpecifyUsersForPersonas(List<UserConfiguration> users)
+        {
+            foreach (var persona in Personas)
+            {
+                var matchingUser = users.FirstOrDefault(u => u.Username == persona.Username);
+
+                if (matchingUser != null)
+                {
+                    persona.Password = matchingUser.Password;
+                    persona.OtpToken = matchingUser.OtpToken;
+                }
+            }
         }
     }
 }

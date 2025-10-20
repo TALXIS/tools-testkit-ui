@@ -1,9 +1,12 @@
-﻿using System;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
-using OpenQA.Selenium;
-using TALXIS.TestKit.Selectors.DTO.Locators;
 using TALXIS.TestKit.Selectors.Browser;
+using TALXIS.TestKit.Selectors.DTO.Locators;
 
 namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
 {
@@ -57,6 +60,16 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
                 }
 
                 return true;
+            });
+        }
+
+        internal BrowserCommandResult<bool> CompareAllertDialog(string expectedMessage)
+        {
+            return Client.Execute<bool>(Client.GetOptions("Compare Alert Dialog Message Text"), driver =>
+            {
+                string massasge = driver.FindElement(By.XPath("//span[@id='dialogMessageText_3']")).Text;
+
+                return expectedMessage == massasge;
             });
         }
 
@@ -231,7 +244,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
             {
                 var dialog = driver.FindElement(By.XPath("//div[@role='dialog']"));
 
-                if(dialog is null)
+                if (dialog is null)
                 {
                     return string.Empty;
                 }
@@ -286,6 +299,125 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
 
                 return driver.FindElement(By.XPath("//div[@data-id='dialogMessageText']")).Text;
             });
+        }
+
+        internal void SetValueToDialogForm(string logicalName, string value)
+        {
+            Client.Execute<object>(Client.GetOptions("Set Value To Dialog Form"), driver =>
+            {
+                SetTextValueToDialogForm(driver, logicalName, value);
+                return null;
+            });
+        }
+
+
+        private void SetTextValueToDialogForm(IWebDriver driver, string logicalName, string value)
+        {
+            EnsureXrm(driver);
+
+            Exec(driver, @"
+                var a = Xrm.Page.getAttribute(arguments[0]);
+                if (!a) throw 'Attribute not found: ' + arguments[0];
+                a.setValue(arguments[1]);
+                a.fireOnChange();
+            ", logicalName, value ?? string.Empty);
+
+            if (HasValue(driver, logicalName))
+            {
+                File.AppendAllText("thx.txt", $"logicalName:{logicalName}    HasValue: true" + Environment.NewLine);
+
+                return;
+            }
+
+            SetNumericValueToDialogForm(driver, logicalName, value);
+
+            File.AppendAllText("thx.txt", $"logicalName:{logicalName}    SetNumericValueToDialogForm: done" + Environment.NewLine);
+
+        }
+
+        private void SetNumericValueToDialogForm(IWebDriver driver, string logicalName, string value)
+        {
+            EnsureXrm(driver);
+
+            Exec(driver, @"
+                Xrm.Page.getAttribute(""udpp_quantity"").setValue(5)
+            ", logicalName, value);
+        }
+
+        public  void SetOptionValueToDialogForm(IWebDriver driver, string logicalName, int optionValue)
+        {
+            EnsureXrm(driver);
+
+            Exec(driver, @"
+            var a = Xrm.Page.getAttribute(arguments[0]);
+            if (!a) throw 'Attribute not found: ' + arguments[0];
+            a.setValue(parseInt(arguments[1], 10));
+            a.fireOnChange();
+        ", logicalName, optionValue);
+        }
+
+        public void SetLookupValueToDialogForm( string fieldLogicalName, string displayName)
+        {
+
+            Client.Execute<object>(Client.GetOptions("Set Value To Dialog Form"), driver =>
+            {
+                if (string.IsNullOrWhiteSpace(fieldLogicalName))
+                    throw new ArgumentNullException(nameof(fieldLogicalName));
+
+                var containerSelector = $"[data-id='{fieldLogicalName}.fieldControl']";
+                var container = driver.FindElement(By.CssSelector(containerSelector));
+
+                var input = container.FindElements(By.CssSelector("input"))
+                             .FirstOrDefault() ??
+                            container.FindElement(By.CssSelector("[role='textbox'], [contenteditable='true']"));
+
+                var actions = new Actions(driver);
+                actions.Click(input)
+                       .KeyDown(Keys.Control).SendKeys("a").KeyUp(Keys.Control)
+                       .SendKeys(displayName)
+                       .SendKeys(Keys.Enter)
+                       .Perform();
+                return null;
+            });
+        }
+
+
+        private object Exec(IWebDriver driver, string script, params object[] args)
+        => ((IJavaScriptExecutor)driver).ExecuteScript(script, args);
+
+        private void EnsureXrm(IWebDriver driver)
+        {
+            var ok = Exec(driver, "return (typeof Xrm !== 'undefined') && Xrm.Page && Xrm.Page.getAttribute ? true : false;");
+            if (!(ok is bool b && b))
+                throw new InvalidOperationException("Xrm.Page is not available in the current context of the page.");
+        }
+
+        private bool HasValue(IWebDriver driver, string logicalName)
+        {
+            var result = Exec(driver, @"
+                if (!window.Xrm || !Xrm.Page || !Xrm.Page.getAttribute)
+                    throw 'Xrm.Page недоступен. Не на форме Power Apps.';
+
+                var attr = Xrm.Page.getAttribute(arguments[0]);
+                if (!attr) throw 'Атрибут не найден: ' + arguments[0];
+
+                var val = attr.getValue();
+
+                if (val === null || val === undefined) return false;
+
+                // Lookup
+                if (Array.isArray(val)) return val.length > 0 && val[0] && val[0].id;
+
+                // String / Number / Boolean
+                if (typeof val === 'string') return val.trim().length > 0;
+                if (typeof val === 'number') return true;
+                if (typeof val === 'boolean') return true;
+                if (val instanceof Date) return true;
+
+                return !!val;
+            ", logicalName);
+
+            return result is bool b && b;
         }
 
     }

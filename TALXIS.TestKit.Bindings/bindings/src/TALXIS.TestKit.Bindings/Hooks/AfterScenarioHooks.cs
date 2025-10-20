@@ -82,14 +82,18 @@
         [AfterScenario]
         public static void DisposeTempProfiles()
         {
-            var basePath = string.IsNullOrEmpty(TestConfig.ProfilesBasePath) ? Path.GetTempPath() : TestConfig.ProfilesBasePath;
-
-            var tempProfilesDirectory = Path.Combine(basePath, "profiles", "TempProfiles");
-
-            if (Directory.Exists(tempProfilesDirectory))
+            try
             {
-                Directory.Delete(tempProfilesDirectory, true);
+                var basePath = string.IsNullOrEmpty(TestConfig.ProfilesBasePath) ? Path.GetTempPath() : TestConfig.ProfilesBasePath;
+
+                var tempProfilesDirectory = Path.Combine(basePath, "profiles", "TempProfiles");
+
+                if (Directory.Exists(tempProfilesDirectory))
+                {
+                    Directory.Delete(tempProfilesDirectory, true);
+                }
             }
+            catch { }
         }
     }
 }
