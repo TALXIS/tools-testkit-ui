@@ -5,9 +5,8 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<AssemblyTitle>TALXIS.TestKit.Selectors</AssemblyTitle>
 		<Product>TALXIS.TestKit.Selectors</Product>
-		<AssemblyVersion>1.0.21208.0840</AssemblyVersion>
-		<FileVersion>1.0.21208.0840</FileVersion>
 		<PackageId>TALXIS.TestKit.Selectors</PackageId>
+		<Title>TALXIS TestKit Selectors</Title>
 		<Description>Selectors for TALXIS TestKit</Description>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>

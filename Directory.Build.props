@@ -1,11 +1,16 @@
 ﻿<Project>
   <PropertyGroup>
-    <Version>1.0.2</Version>
+    <Version>1.0.7</Version>
     <Authors>NETWORG</Authors>
     <Company>NETWORG</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Copyright>Copyright © 2025</Copyright>
+    <PackageProjectUrl>https://github.com/TALXIS/tools-testkit-ui</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TALXIS/tools-testkit-ui</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>package-icon.png</PackageIcon>
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
@@ -20,4 +25,9 @@
   <PropertyGroup Condition="'$(MSBuildProjectName)' == 'TALXIS.TestKit.Bindings.MSBuild'">
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" Link="README.md" />
+    <None Include="$(MSBuildThisFileDirectory)package-icon.png" Pack="true" PackagePath="" Link="package-icon.png" />
+  </ItemGroup>
 </Project>

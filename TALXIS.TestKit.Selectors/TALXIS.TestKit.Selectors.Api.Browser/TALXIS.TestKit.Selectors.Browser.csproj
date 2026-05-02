@@ -9,6 +9,9 @@
     <AssemblyTitle>TALXIS.TestKit.Selectors.Browser</AssemblyTitle>
     <Product>TALXIS.TestKit.Selectors.Browser</Product>
     <Copyright>Copyright ©  2025</Copyright>
+    <PackageId>TALXIS.TestKit.Selectors.Browser</PackageId>
+    <Title>TALXIS TestKit Selectors Browser</Title>
+    <Description>Browser-specific selector helpers for TALXIS TestKit.</Description>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
