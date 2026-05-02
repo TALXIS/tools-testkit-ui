@@ -109,9 +109,10 @@ jobs:
         run: |
           $pkgVer = "${{ needs.resolve-version.outputs.package-version }}"
           $asmVer = "${{ needs.resolve-version.outputs.assembly-version }}"
-          dotnet pack TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors.Api.Browser/TALXIS.TestKit.Selectors.Browser.csproj --configuration Release -p:Version=$pkgVer -p:PackageVersion=$pkgVer -p:AssemblyVersion=$asmVer -p:FileVersion=$asmVer
-          dotnet pack TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors.csproj --configuration Release -p:Version=$pkgVer -p:PackageVersion=$pkgVer -p:AssemblyVersion=$asmVer -p:FileVersion=$asmVer
-          dotnet pack TALXIS.TestKit.Bindings/bindings/src/TALXIS.TestKit.Bindings/TALXIS.TestKit.Bindings.csproj --configuration Release -p:Version=$pkgVer -p:PackageVersion=$pkgVer -p:AssemblyVersion=$asmVer -p:FileVersion=$asmVer
+          dotnet build TALXIS.TestKit.sln --configuration Release -p:Version=$pkgVer -p:PackageVersion=$pkgVer -p:AssemblyVersion=$asmVer -p:FileVersion=$asmVer
+          dotnet pack TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors.Api.Browser/TALXIS.TestKit.Selectors.Browser.csproj --configuration Release --no-build -p:Version=$pkgVer -p:PackageVersion=$pkgVer -p:AssemblyVersion=$asmVer -p:FileVersion=$asmVer
+          dotnet pack TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors.csproj --configuration Release --no-build -p:Version=$pkgVer -p:PackageVersion=$pkgVer -p:AssemblyVersion=$asmVer -p:FileVersion=$asmVer
+          dotnet pack TALXIS.TestKit.Bindings/bindings/src/TALXIS.TestKit.Bindings/TALXIS.TestKit.Bindings.csproj --configuration Release --no-build -p:Version=$pkgVer -p:PackageVersion=$pkgVer -p:AssemblyVersion=$asmVer -p:FileVersion=$asmVer
       - uses: actions/upload-artifact@v4
         with:
           name: nuget
