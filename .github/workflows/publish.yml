@@ -125,7 +125,9 @@ jobs:
 
   deploy:
     needs: [create_nuget]
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -133,8 +135,15 @@ jobs:
           path: ${{ env.NuGetDirectory }}
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
+      - name: NuGet login (OIDC)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
       - name: Publish NuGet packages
         run: |
           foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
-              dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+              dotnet nuget push $file --api-key $env:NUGET_AUTH_TOKEN --source https://api.nuget.org/v3/index.json --skip-duplicate
           }
+        env:
+          NUGET_AUTH_TOKEN: ${{ steps.login.outputs.NUGET_API_KEY }}
