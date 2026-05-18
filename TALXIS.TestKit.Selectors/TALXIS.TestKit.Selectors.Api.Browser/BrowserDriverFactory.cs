@@ -45,9 +45,11 @@ namespace TALXIS.TestKit.Selectors.Browser
                     driver.Manage().Timeouts().ImplicitWait = new TimeSpan(0, 0, 5);
                     break;
                 case BrowserType.Edge:
-                    driverManager.SetUpDriver(new EdgeConfig(), VersionResolveStrategy.Latest);
-                    var edgeService = EdgeDriverService.CreateDefaultService(options.DriversPath);
+                    // Skip WebDriverManager download (msedgedriver.azureedge.net CDN may be unreachable).
+                    // EdgeDriverService.CreateDefaultService() resolves msedgedriver from PATH instead.
+                    var edgeService = EdgeDriverService.CreateDefaultService();
                     edgeService.HideCommandPromptWindow = options.HideDiagnosticWindow;
+                    edgeService.SuppressInitialDiagnosticInformation = true;
                     driver = new EdgeDriver(edgeService, options.ToEdge(), options.CommandTimeout);
                     break;
                 case BrowserType.Remote:

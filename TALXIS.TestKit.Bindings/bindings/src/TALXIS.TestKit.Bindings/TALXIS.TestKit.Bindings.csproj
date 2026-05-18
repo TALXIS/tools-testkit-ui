@@ -69,6 +69,8 @@
     <Content Include="bin\lib\driver.js">
       <Pack>true</Pack>
       <PackagePath>build</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>driver.js</Link>
     </Content>
     <Content Include="bin\lib\TALXIS.TestKit.Bindings.MSBuild\**">
       <Pack>true</Pack>
