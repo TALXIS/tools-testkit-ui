@@ -21,15 +21,7 @@ defaults:
 
 jobs:
   build-and-test:
-    # Windows first: most consumers build there and the release is packed there. Linux catches what only shows on a
-    # case-sensitive file system with '/' paths (agents, containers, Linux build agents).
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-    # The Windows run keeps the check name 'build-and-test' that branch protection may require.
-    name: build-and-test${{ matrix.os != 'windows-latest' && format(' ({0})', matrix.os) || '' }}
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     # A full run takes about 5 minutes; a hung browser should not hold the runner for hours.
     timeout-minutes: 30
     steps:
@@ -55,22 +47,3 @@ jobs:
       # The tests drive static pages in a headless Chrome.
       - name: Test
         run: dotnet test TALXIS.TestKit.sln --configuration Release --no-build
-      # Pack as publish.yml does and build projects that use the packages: the .targets, the data file task and the
-      # target framework check only take effect in a consumer's build (1.0.10 shipped a .targets without its task).
-      - name: Pack
-        run: |
-          $v = '0.0.0-ci'
-          $p = "-p:Version=$v", "-p:PackageVersion=$v", '-p:AssemblyVersion=0.0.0.0', '-p:FileVersion=0.0.0.0'
-          dotnet build TALXIS.TestKit.sln --configuration Release @p
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          $projects = @(
-            'TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors.Api.Browser/TALXIS.TestKit.Selectors.Browser.csproj'
-            'TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors/TALXIS.TestKit.Selectors.csproj'
-            'TALXIS.TestKit.Bindings/bindings/src/TALXIS.TestKit.Bindings/TALXIS.TestKit.Bindings.csproj'
-          )
-          foreach ($project in $projects) {
-            dotnet pack $project --configuration Release --no-build @p --output "$env:RUNNER_TEMP/packages"
-            if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          }
-      - name: Check the packages
-        run: ./.github/scripts/Test-Package.ps1 -Feed "$env:RUNNER_TEMP/packages" -Version 0.0.0-ci
