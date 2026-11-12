@@ -70,7 +70,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         {
             var entity = new PortalApp(PortalTestPage.Client()).Entity;
 
-            var error = Assert.ThrowsException<WebDriverTimeoutException>(() => entity.IsFieldRequired("Credt Limit", required: true));
+            var error = Assert.ThrowsExactly<WebDriverTimeoutException>(() => entity.IsFieldRequired("Credt Limit", required: true));
             StringAssert.Contains(error.Message, "The field 'Credt Limit' was not found");
         }
 

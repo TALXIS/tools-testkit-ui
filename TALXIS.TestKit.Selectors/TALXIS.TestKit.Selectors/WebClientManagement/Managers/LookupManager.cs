@@ -369,7 +369,7 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement
                     {
                         if (!driver.TryFindElement(By.CssSelector("div[data-id*=LookupResultsDropdown][aria-label*=\"Lookup results\"]"), out flyout))
                         {
-                            throw new ElementNotVisibleException("The flyout is not visible for the lookup.");
+                            throw new ElementNotInteractableException("The flyout is not visible for the lookup.");
                         }
                     }
 

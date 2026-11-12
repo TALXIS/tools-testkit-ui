@@ -35,7 +35,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         [TestMethod]
         public void NamesAnAliasWithoutATestRecord()
         {
-            var error = Assert.ThrowsException<ArgumentException>(() => this.testDriver.GetTestRecordReference("a missing account"));
+            var error = Assert.ThrowsExactly<ArgumentException>(() => this.testDriver.GetTestRecordReference("a missing account"));
 
             StringAssert.Contains(error.Message, "Test record with alias 'a missing account' does not exist.");
         }

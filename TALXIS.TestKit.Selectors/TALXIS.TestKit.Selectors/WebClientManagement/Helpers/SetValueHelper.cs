@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
-using SeleniumExtras.WaitHelpers;
 using TALXIS.TestKit.Selectors.DTO;
 using TALXIS.TestKit.Selectors.DTO.Locators;
 using TALXIS.TestKit.Selectors.Browser;
@@ -229,11 +228,16 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             if (!string.IsNullOrEmpty(label))
             {
-                return wait.Until(ExpectedConditions.ElementExists(FieldElementsLocators.LableSearch(label)));
+                // WebDriverWait ignores NoSuchElementException, so it retries until the field is there.
+                return wait.Until(d => d.FindElement(FieldElementsLocators.LableSearch(label)));
             }
             else
             {
-                var inputs = wait.Until(ExpectedConditions.PresenceOfAllElementsLocatedBy(FieldElementsLocators.IndexSearch));
+                var inputs = wait.Until(d =>
+                {
+                    var elements = d.FindElements(FieldElementsLocators.IndexSearch);
+                    return elements.Count > 0 ? elements : null;
+                });
                 return inputs.ElementAtOrDefault(fieldIndex);
             }
         }
@@ -264,7 +268,18 @@ namespace TALXIS.TestKit.Selectors.WebClientManagement.Helpers
 
             for (int i = 0; i < inputs.Count && i < parts.Length; i++)
             {
-                var input = wait.Until(ExpectedConditions.ElementToBeClickable(inputs[i]));
+                var candidate = inputs[i];
+                var input = wait.Until(_ =>
+                {
+                    try
+                    {
+                        return candidate.Displayed && candidate.Enabled ? candidate : null;
+                    }
+                    catch (StaleElementReferenceException)
+                    {
+                        return null;
+                    }
+                });
                 SetInputValue(client, driver, input, parts[i]);
 
                 if (i < inputs.Count - 1)

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Options;
 using OpenQA.Selenium;
 using TALXIS.TestKit.Selectors.DTO;
 using TALXIS.TestKit.Selectors.DTO.Locators;
