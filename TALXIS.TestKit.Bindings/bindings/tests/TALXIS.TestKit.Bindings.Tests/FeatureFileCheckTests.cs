@@ -168,7 +168,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         [TestMethod]
         public void RefusesToCheckNoFeatureFiles()
         {
-            Assert.ThrowsException<ArgumentException>(() => FeatureFileCheck.FindStepsWithoutOneBinding(Array.Empty<string>(), new[] { typeof(CheckedSteps).Assembly }));
+            Assert.ThrowsExactly<ArgumentException>(() => FeatureFileCheck.FindStepsWithoutOneBinding(Array.Empty<string>(), new[] { typeof(CheckedSteps).Assembly }));
         }
 
         [TestMethod]
@@ -176,7 +176,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         {
             File.WriteAllLines(featureFile, new[] { "Given a step without a feature" });
 
-            var error = Assert.ThrowsException<FormatException>(() => FeatureFileCheck.FindStepsWithoutOneBinding(new[] { featureFile }, new[] { typeof(CheckedSteps).Assembly }));
+            var error = Assert.ThrowsExactly<FormatException>(() => FeatureFileCheck.FindStepsWithoutOneBinding(new[] { featureFile }, new[] { typeof(CheckedSteps).Assembly }));
 
             StringAssert.StartsWith(error.Message, featureFile);
         }

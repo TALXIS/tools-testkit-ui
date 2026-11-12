@@ -99,7 +99,8 @@
 
         private string GetFileOutputPath(string itemPath)
         {
-            return Path.Combine(this.DestinationFolder.ItemSpec, string.Join(" ", itemPath.Split('\\').Skip(1)));
+            // Data\Orders\order.json becomes "Orders order.json". MSBuild hands the path over with '/' on Linux and macOS.
+            return Path.Combine(this.DestinationFolder.ItemSpec, string.Join(" ", itemPath.Split('\\', '/').Skip(1)));
         }
 
         private Stack<JObject> GetMergeStack(string itemPath, Stack<JObject> existingStack = null)

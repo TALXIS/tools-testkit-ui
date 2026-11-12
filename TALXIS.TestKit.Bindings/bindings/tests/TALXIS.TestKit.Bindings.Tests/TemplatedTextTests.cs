@@ -38,7 +38,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         [TestMethod]
         public void RefusesAnUnknownTemplate()
         {
-            Assert.ThrowsException<NotImplementedException>(() => "{{YESTERDAY}}".ReplaceTemplatedText());
+            Assert.ThrowsExactly<NotImplementedException>(() => "{{YESTERDAY}}".ReplaceTemplatedText());
         }
 
         private static string Date(int days) => DateTime.Today.AddDays(days).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);

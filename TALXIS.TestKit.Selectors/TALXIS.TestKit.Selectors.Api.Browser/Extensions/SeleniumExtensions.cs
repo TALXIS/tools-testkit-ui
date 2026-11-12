@@ -15,7 +15,6 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.Events;
 using OpenQA.Selenium.Support.UI;
-using SeleniumExtras.WaitHelpers;
 
 namespace TALXIS.TestKit.Selectors.Browser
 {
@@ -251,7 +250,17 @@ namespace TALXIS.TestKit.Selectors.Browser
             WebDriverWait wait = new WebDriverWait(driver, timeout);
             try
             {
-                wait.Until(ExpectedConditions.AlertIsPresent());
+                wait.Until(d =>
+                {
+                    try
+                    {
+                        return d.SwitchTo().Alert();
+                    }
+                    catch (NoAlertPresentException)
+                    {
+                        return null;
+                    }
+                });
                 return true;
             }
             catch (NoSuchElementException) { }

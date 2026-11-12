@@ -40,7 +40,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         {
             var subGrid = new PortalApp(PortalTestPage.Client()).SubGrid;
 
-            var error = Assert.ThrowsException<NotSupportedException>(() => subGrid.IsCommandEnabled("InvoicesSubgrid", "Aprove", enabled: false));
+            var error = Assert.ThrowsExactly<NotSupportedException>(() => subGrid.IsCommandEnabled("InvoicesSubgrid", "Aprove", enabled: false));
             StringAssert.Contains(error.Message, "I should not be able to see the 'Aprove' command on the 'InvoicesSubgrid' subgrid");
         }
 

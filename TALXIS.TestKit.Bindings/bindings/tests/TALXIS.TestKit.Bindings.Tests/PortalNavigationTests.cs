@@ -19,7 +19,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         public void IsReadyOnceThePortalHasLoadedItsNavigationAndPage()
         {
             PortalTestPage.Run("window.TALXIS.Portal.Context = { isNavbarLoaded: true, isLoading: true };");
-            Assert.ThrowsException<WebDriverTimeoutException>(() => PortalPageManager.WaitForReady(this.driver, TimeSpan.FromSeconds(1), "Not ready."));
+            Assert.ThrowsExactly<WebDriverTimeoutException>(() => PortalPageManager.WaitForReady(this.driver, TimeSpan.FromSeconds(1), "Not ready."));
 
             PortalTestPage.Run("window.TALXIS.Portal.Context.isLoading = false;");
             Assert.IsTrue(PortalPageManager.WaitForReady(this.driver, TimeSpan.FromSeconds(1), "Not ready."));
@@ -30,7 +30,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         {
             PortalTestPage.Run("document.body.insertAdjacentHTML('beforeend', '<div role=\"dialog\"><i class=\"TALXIS-Portal-errorDialog-title-icon\"></i>Configuration failed</div>');");
 
-            var error = Assert.ThrowsException<InvalidOperationException>(() => PortalPageManager.WaitForReady(this.driver, TimeSpan.FromSeconds(5), "Not ready."));
+            var error = Assert.ThrowsExactly<InvalidOperationException>(() => PortalPageManager.WaitForReady(this.driver, TimeSpan.FromSeconds(5), "Not ready."));
             StringAssert.Contains(error.Message, "Configuration failed");
         }
 
@@ -39,7 +39,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         {
             var navigation = new PortalApp(PortalTestPage.Client()).Navigation;
 
-            Assert.ThrowsException<NotSupportedException>(() => navigation.OpenRecord("contact", Guid.NewGuid()));
+            Assert.ThrowsExactly<NotSupportedException>(() => navigation.OpenRecord("contact", Guid.NewGuid()));
         }
 
         [TestMethod]

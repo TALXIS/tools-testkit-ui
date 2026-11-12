@@ -64,7 +64,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         [TestMethod]
         public void RefusesToTellWhetherAFieldNotOnTheFormIsEmpty()
         {
-            Assert.ThrowsException<InvalidOperationException>(() => this.app.Entity.IsFieldEmpty("talxis_missing"));
+            Assert.ThrowsExactly<InvalidOperationException>(() => this.app.Entity.IsFieldEmpty("talxis_missing"));
         }
 
         [TestMethod]
@@ -134,7 +134,7 @@ namespace TALXIS.TestKit.Bindings.Tests
         [TestMethod]
         public void RefusesToClickACommandThatIsNotInTheFlyout()
         {
-            var error = Assert.ThrowsException<InvalidOperationException>(() => this.xrmApp.CommandBar.ClickCommand("Flow", "Missing"));
+            var error = Assert.ThrowsExactly<InvalidOperationException>(() => this.xrmApp.CommandBar.ClickCommand("Flow", "Missing"));
 
             StringAssert.Contains(error.Message, "'Missing' exists under 'Flow'");
         }
@@ -198,7 +198,7 @@ namespace TALXIS.TestKit.Bindings.Tests
             ((IJavaScriptExecutor)this.driver).ExecuteScript(
                 "window.Xrm.Navigation = { openForm: () => Promise.reject(new Error('The record was not found.')) };");
 
-            var error = Assert.ThrowsException<WebDriverException>(() => this.app.Navigation.OpenRecord("account", Guid.NewGuid()));
+            var error = Assert.ThrowsExactly<WebDriverException>(() => this.app.Navigation.OpenRecord("account", Guid.NewGuid()));
 
             StringAssert.Contains(error.Message, "The record was not found.");
         }
@@ -213,7 +213,7 @@ namespace TALXIS.TestKit.Bindings.Tests
             timeouts.AsynchronousJavaScript = TimeSpan.FromSeconds(1);
             try
             {
-                var error = Assert.ThrowsException<WebDriverTimeoutException>(() => this.app.Navigation.OpenRecord("account", recordId));
+                var error = Assert.ThrowsExactly<WebDriverTimeoutException>(() => this.app.Navigation.OpenRecord("account", recordId));
 
                 StringAssert.Contains(error.Message, $"Opening the account record {recordId} did not finish");
             }
@@ -231,7 +231,7 @@ namespace TALXIS.TestKit.Bindings.Tests
                 "window.Xrm.Navigation = { openForm: () => Promise.resolve({}) };"
                 + " window.Xrm.Page.data = { entity: { getId: () => '{A1B2C3D4-0000-0000-0000-000000000003}' } };");
 
-            var error = Assert.ThrowsException<WebDriverTimeoutException>(
+            var error = Assert.ThrowsExactly<WebDriverTimeoutException>(
                 () => new NavigationManager(PortalTestPage.Client()).OpenRecord("account", recordId, TimeSpan.FromSeconds(1)));
 
             StringAssert.Contains(error.Message, $"The form did not show the account record {recordId}.");

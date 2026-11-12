@@ -7,6 +7,13 @@
     </None>
   </ItemGroup>
 
+  <!-- This file is not tied to a target framework, so NuGet installs the package into an older project too, just
+       without lib/net10.0. Stop the build there instead of letting Reqnroll miss the binding assembly at run time. -->
+  <Target Name="CheckTestKitTargetFramework" BeforeTargets="ResolveAssemblyReferences;Build"
+          Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp' Or $([MSBuild]::VersionLessThan('$(TargetFrameworkVersion.TrimStart(vV))', '10.0'))">
+    <Error Code="TESTKIT001" Text="TALXIS.TestKit.Bindings needs a project that targets net10.0 or later; this one targets $(TargetFramework). Retarget the project, or stay on TALXIS.TestKit.Bindings 1.0.*." />
+  </Target>
+
   <UsingTask TaskName="TALXIS.TestKit.Bindings.MSBuild.ExtendDataFiles" AssemblyFile="$(MSBuildThisFileDirectory)/TALXIS.TestKit.Bindings.MSBuild/TALXIS.TestKit.Bindings.MSBuild.dll" />
   <Target Name="CompileDataFiles" AfterTargets="Build">
     <ItemGroup>

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Options;
 using OpenQA.Selenium;
 using TALXIS.TestKit.Selectors.DTO;
 using TALXIS.TestKit.Selectors.WebClientManagement;
