@@ -120,7 +120,10 @@ Assert ($build.ExitCode -ne 0 -and $build.Output -match 'TESTKIT001') 'stops wit
 if ($build.Output -notmatch 'TESTKIT001') { Write-Host $build.Output }
 
 Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+# Exit explicitly: the net8.0 build fails on purpose, and its exit code would otherwise become the script's.
 if ($failures.Count -gt 0) {
-    Write-Error "$($failures.Count) package check(s) failed: $($failures -join '; ')"
+    Write-Host "$($failures.Count) package check(s) failed: $($failures -join '; ')"
+    exit 1
 }
 Write-Host 'All package checks passed.'
+exit 0
